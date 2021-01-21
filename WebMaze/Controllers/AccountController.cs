@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Security.Claims;
@@ -19,6 +20,7 @@ using WebMaze.Services;
 
 namespace WebMaze.Controllers
 {
+    [Authorize]
     public class AccountController : Controller
     {
         private CitizenUserRepository citizenUserRepository;
@@ -39,6 +41,7 @@ namespace WebMaze.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Login()
         {
             var viewModel = new LoginViewModel();
@@ -49,8 +52,10 @@ namespace WebMaze.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> Login(LoginViewModel loginViewModel)
         {
+            /* Authentication written by Pavel:
             var user = citizenUserRepository
                 .GetUserByNameAndPassword(loginViewModel.Login, loginViewModel.Password);
             if (user == null)
@@ -58,6 +63,7 @@ namespace WebMaze.Controllers
                 return View(loginViewModel);
             }
 
+            
             //Строки в документе
             var recordId = new Claim("Id", user.Id.ToString());
             var recordName = new Claim(ClaimTypes.Name, user.Login);
@@ -73,7 +79,18 @@ namespace WebMaze.Controllers
             var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
             await HttpContext.SignInAsync(claimsPrincipal);
+            */
 
+            try
+            {
+                await userService.SignInAsync(loginViewModel.Login, loginViewModel.Password, isPersistent: false);
+            }
+            catch (ValidationException exception)
+            {
+                ModelState.AddModelError("", exception.Message);
+                return View(loginViewModel);
+            }
+            
             if (string.IsNullOrEmpty(loginViewModel.ReturnUrl))
             {
                 return RedirectToAction("Index", "Home");
@@ -82,11 +99,10 @@ namespace WebMaze.Controllers
             {
                 return Redirect(loginViewModel.ReturnUrl);
             }
-
-            
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Registration()
         {
             var viewModel = new RegistrationViewModel()
@@ -98,8 +114,10 @@ namespace WebMaze.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public IActionResult Registration(RegistrationViewModel viewModel)
         {
+            /* Registration written by Pavel:
             if (!ModelState.IsValid)
             {
                 return View(viewModel);
@@ -108,10 +126,28 @@ namespace WebMaze.Controllers
             var user = mapper.Map<CitizenUser>(viewModel);
             citizenUserRepository.Save(user);
             return View();
+            */
+
+            if (ModelState.IsValid)
+            {
+                var user = mapper.Map<CitizenUser>(viewModel);
+                try
+                {
+                    userService.Save(user);
+                }
+                catch (ValidationException exception)
+                {
+                    ModelState.AddModelError("", exception.Message);
+                    return View(viewModel);
+                }
+
+                return RedirectToAction(nameof(Login));
+            }
+
+            return View(viewModel);
         }
 
         [HttpGet]
-        [Authorize]
         public IActionResult Profile()
         {
             var user = userService.GetCurrentUser();
