@@ -21,6 +21,9 @@ using WebMaze.Models.UserTasks;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 using WebMaze.Services;
 using Microsoft.AspNetCore.Http;
+using WebMaze.DbStuff.Repository.Life;
+using WebMaze.DbStuff.Model.Life;
+using WebMaze.Models.Life;
 
 namespace WebMaze
 {
@@ -92,6 +95,17 @@ namespace WebMaze
             configurationExpression.CreateMap<UserTask, UserTaskViewModel>();
             configurationExpression.CreateMap<UserTaskViewModel, UserTask>();
 
+            #region Life project
+            configurationExpression.CreateMap<Accident, AccidentViewModel>()
+                .ForMember(
+                    destination => destination.AccidentCategory,
+                    opt => opt.ConvertUsing(new EnumConverter()));
+            configurationExpression.CreateMap<AccidentViewModel, Accident>()
+                .ForMember(
+                    destination => destination.AccidentCategory,
+                    opt => opt.Ignore());
+            #endregion
+
             var mapperConfiguration = new MapperConfiguration(configurationExpression);
             var mapper = new Mapper(mapperConfiguration);
             services.AddScoped<IMapper>(s => mapper);
@@ -116,6 +130,8 @@ namespace WebMaze
             services.AddScoped(s => new BusRouteRepository(s.GetService<WebMazeContext>()));
 
             services.AddScoped(s => new UserTaskRepository(s.GetService<WebMazeContext>()));
+
+            services.AddScoped<AccidentRepository>(s => new AccidentRepository(s.GetService<WebMazeContext>()));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

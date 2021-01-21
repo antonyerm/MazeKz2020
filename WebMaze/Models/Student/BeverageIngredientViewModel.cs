@@ -19,13 +19,10 @@ namespace WebMaze.Models
                 {
                     case BeverageIngredientUnit.g:
                         return "г";
-                        break;
                     case BeverageIngredientUnit.mL:
                         return "мл";
-                        break;
                     default:
                         return "";
-                        break;
                 }
             }
 

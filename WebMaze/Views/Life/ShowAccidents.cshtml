@@ -1,0 +1,39 @@
+﻿@using WebMaze.Models.Life
+@model List<AccidentViewModel>
+@{
+    Layout = "_LifeLayout";
+}
+
+<h3>Сводка событий</h3>
+
+<div class="container">
+    <div class="container">
+        <a class="btn btn-primary" asp-controller="Life" asp-action="AddAccident" role="button">Добавить</a>
+    </div>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Дата</th>
+                <th>Адрес</th>
+                <th>Тип происшествия</th>
+                <th>Что произошло</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in @Model)
+            {
+                <tr>
+                    <th>@item.AccidentDate</th>
+                    <th>@item.AccidentAddress</th>
+                    <th>@item.AccidentCategory</th>
+                    <th>@item.AccidentDescription.</th>
+                    <th>
+                        <a class="btn btn-primary" asp-controller="Life" asp-action="ShowDetails" role="button">Подробности</a>
+                    </th>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+

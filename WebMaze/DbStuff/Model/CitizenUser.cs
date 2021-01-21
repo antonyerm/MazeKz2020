@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
+using WebMaze.DbStuff.Model.Life;
 
 namespace WebMaze.DbStuff.Model
 {
@@ -38,5 +39,11 @@ namespace WebMaze.DbStuff.Model
         public virtual DateTime BirthDate { get; set; }
 
         public virtual List<Adress> Adresses { get; set; }
+
+        #region Life Project
+        // relations
+        public virtual ICollection<AccidentVictim> AccidentVictims { get; set; }
+        public virtual ICollection<CriminalOffender> CriminalOffenders { get; set; }
+        #endregion
     }
 }
