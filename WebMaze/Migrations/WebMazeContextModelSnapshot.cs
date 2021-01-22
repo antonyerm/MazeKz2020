@@ -905,7 +905,6 @@ namespace WebMaze.Migrations
                     b.Navigation("FireDetail");
 
                     b.Navigation("HousesDestroyedInFire");
-                });
 
                     b.Navigation("RecordForms");
                 });
