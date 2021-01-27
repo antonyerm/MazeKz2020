@@ -92,7 +92,6 @@ namespace WebMaze
 
             services.AddScoped(s => new UserService(s.GetService<CitizenUserRepository>(),
                 s.GetService<RoleRepository>(),
-                s.GetService<UserValidator>(),
                 s.GetService<IHttpContextAccessor>()));
 
             services.AddHttpContextAccessor();
