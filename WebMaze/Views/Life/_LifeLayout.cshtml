@@ -1,8 +1,18 @@
-﻿@{ 
+﻿@{
     Layout = "_Layout";
     ViewData["Title"] = "Жизнь";
 }
-<div>
-    This is Life Layout Part.
-    @RenderBody()
+
+@RenderSection("Scripts", required: false)
+@RenderSection("Styles", required: false)
+
+
+<div class="border-bottom d-flex">
+    <div class="ml-auto">
+        This is Life Layout Part. Hi there!
+    </div>
 </div>
+
+
+@RenderBody()
+

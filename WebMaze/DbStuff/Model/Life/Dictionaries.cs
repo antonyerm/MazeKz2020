@@ -12,7 +12,6 @@ namespace WebMaze.DbStuff.Model.Life
         
         public Dictionary<AccidentCategoryEnum, string> AccidentCategory = new Dictionary<AccidentCategoryEnum, string>
         {
-            [AccidentCategoryEnum.NotDefined] = "Неизвестно",
             [AccidentCategoryEnum.Fire] = "Пожар",
             [AccidentCategoryEnum.CriminalOffence] = "Преступление",
         };
@@ -84,14 +83,40 @@ namespace WebMaze.DbStuff.Model.Life
         {
         }
 
-        public static Dictionaries GetText()
+        public static string GetText<T>(T enumValue) where T : Enum
         {
             if (singleton == null)
             {
                 singleton = new Dictionaries();
             }
 
-            return singleton;
+            if (enumValue is AccidentCategoryEnum accidentCategoryEnum)
+            {
+                return singleton.AccidentCategory[accidentCategoryEnum];
+            }
+
+            if (enumValue is BodilyHarmEnum bodylyHarmEnum)
+            {
+                return singleton.BodilyHarm[bodylyHarmEnum];
+            }
+
+            if (enumValue is CriminalCodeEnum criminalCodeEnum)
+            {
+                return singleton.CriminalCode[criminalCodeEnum];
+            }
+
+            if (enumValue is FireCauseEnum fireCauseEnum)
+            {
+                return singleton.FireCause[fireCauseEnum];
+            }
+
+            if (enumValue is FireClassEnum fireClassEnum)
+            {
+                return singleton.FireClass[fireClassEnum];
+            }
+
+            return $"{typeof(T)} enum type is not supported";
+
         }
 
     }

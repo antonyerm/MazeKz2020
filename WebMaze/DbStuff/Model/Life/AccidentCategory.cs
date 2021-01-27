@@ -7,7 +7,6 @@ namespace WebMaze.DbStuff.Model.Life
 {
     public enum AccidentCategoryEnum
     {
-        NotDefined = 0,
         Fire = 1,
         CriminalOffence = 2,
     }

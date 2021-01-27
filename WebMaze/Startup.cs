@@ -150,17 +150,20 @@ namespace WebMaze
             configurationExpression.CreateMap<UserTaskViewModel, UserTask>();
 
             #region Life project
-            configurationExpression.CreateMap<Accident, AccidentViewModel>()
-                .ForMember(
-                    destination => destination.AccidentCategory,
-                    opt => opt.ConvertUsing(new EnumConverter()));
-            configurationExpression.CreateMap<AccidentViewModel, Accident>()
-                .ForMember(
-                    destination => destination.AccidentCategory,
-                    opt => opt.Ignore());
+            //configurationExpression.CreateMap<Accident, AccidentViewModel>()
+            //    .ForMember(
+            //        destination => destination.AccidentCategory,
+            //        opt => opt.ConvertUsing(new EnumConverter()));
+            //configurationExpression.CreateMap<AccidentViewModel, Accident>()
+            //    .ForMember(
+            //        destination => destination.AccidentCategory,
+            //        opt => opt.Ignore());
+            //configurationExpression.CreateMap<Accident, AccidentViewModel>()
+            //    .ForMember(
+            //        destination => destination.AccidentAddress,
+            //        opt => opt.ConvertUsing(new AddressConverter()));
             #endregion
 
-            
             configurationExpression.CreateMap<Certificate, CertificateViewModel>()
                 .ForMember(dest => dest.OwnerLogin, opt => opt.MapFrom(src => src.Owner.Login));
 

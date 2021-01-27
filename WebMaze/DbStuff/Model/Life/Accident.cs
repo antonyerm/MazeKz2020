@@ -15,7 +15,7 @@ namespace WebMaze.DbStuff.Model.Life
 
         // relations
         // The principal side of 1:0..1 relations
-        public virtual FireDetail? FireDetail { get; set; }
+        public virtual FireDetail FireDetail { get; set; }
         // The 1 side of 1:0..N relations
         public virtual ICollection<HouseDestroyedInFire> HousesDestroyedInFire { get; set; }
         public virtual ICollection<CriminalOffenceArticle> CriminalOffenceArticles { get; set; }
