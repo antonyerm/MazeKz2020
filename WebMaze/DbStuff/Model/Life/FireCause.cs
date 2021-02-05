@@ -7,6 +7,7 @@ namespace WebMaze.DbStuff.Model.Life
 {
     public enum FireCauseEnum
     {
+        NotAvailable = 0,
         unknown = 100,
         lightning = 201,
         volcanism = 202,

@@ -1,0 +1,174 @@
+﻿@using WebMaze.Models.Life
+@using WebMaze.DbStuff.Model.Life
+@model AccidentDetailsViewModel
+
+<partial name="_Validation" />
+
+<div id="newContent" class="container">
+    <h5>Подробности случившегося</h5>
+    <div class="mt-3">
+        <div><strong>Дата происшествия: </strong>@Model.AccidentDate.ToString("g")</div>
+        <div>
+            <strong>Место происшествия: </strong>@((Model.AccidentAddressViewModel == null)?
+            Dictionaries.NotAvailable : Model.AccidentAddressViewModel.City)
+        </div>
+        <div><strong>Тип происшествия: </strong>@Model.AccidentCategoryText</div>
+        <div><strong>Краткое описание происшествия: </strong>@Model.AccidentDescription</div>
+    </div>
+
+    <div class="mt-3">
+        <h5>Пострадавшие в происшествии</h5>
+        <table class="table table-striped table-secondary mb-3" id="victims">
+            <thead>
+                <tr>
+                    <th>Имя</th>
+                    <th>Телесные повреждение</th>
+                    <th>Экономический ущерб</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                @foreach (var victim in Model.AccidentVictimsViewModel)
+                {
+                    <tr>
+                        <td>@victim.VictimName</td>
+                        <td>@victim.BodilyHarmText</td>
+                        <td>@victim.EconomicLoss</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        @if (Model.AccidentVictimsViewModel.Count == 0)
+        {
+            <p class="font-italic">
+                Пострадавших нет.
+            </p>
+        }
+    </div>
+
+    @if (Model.SelectedAccidentCategory == (int)AccidentCategoryEnum.Fire)
+    {
+        @*Fire *@
+        <div class="mt-3">
+            <h5>Характеристика пожара</h5>
+            <div><strong>Причина возгорания: </strong>@Model.FireDetailViewModel.FireCauseText</div>
+            <div><strong>Класс возгорания: </strong>@Model.FireDetailViewModel.FireClassText</div>
+        </div>
+
+        <div class="mt-3">
+            <h5>Дома, уничтоженные в пожаре</h5>
+            <table class="table table-striped table-secondary mb-3" id="houses">
+                <thead>
+                    <tr>
+                        <th>Адреса домов, сгоревших в пожаре</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var house in Model.HousesDestroyedInFireViewModel)
+                    {
+                        <tr>
+                            <td>@house.City + ", " @house.Street + ", " + @house.HouseNumber</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            @if (Model.HousesDestroyedInFireViewModel.Count == 0)
+            {
+                <p class="font-italic">
+                    Сгоревших домов нет.
+                </p>
+            }
+        </div>
+    }
+    else
+    {
+        @*Criminal Offence *@
+        <div class="mt-3">
+            <h5>Преступление относится к следующим статьям УК</h5>
+            <table class="table table-striped table-secondary mt-3" id="articles">
+                <thead>
+                    <tr>
+                        <th>Статьи УК</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var article in Model.CriminalOffenceArticlesViewModel)
+                    {
+                        <tr>
+                            <td>@article.CriminalOffenceArticleText</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            @if (Model.CriminalOffenceArticlesViewModel.Count == 0)
+            {
+                <p class="font-italic">
+                    Преступление пока не было классифицировано.
+                </p>
+            }
+        </div>
+
+        <div class="mt-3">
+            <h5>Следующие правонарушители понесли наказание</h5>
+            <table class="table table-striped table-secondary mt-3" id="articles">
+                <thead>
+                    <tr>
+                        <th>Имя</th>
+                        <th>Приговор</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var offender in Model.CriminalOffendersViewModel)
+                    {
+                        <tr>
+                            <td>@offender.OffenderName</td>
+                            <td>@offender.Verdict</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            @if (Model.CriminalOffendersViewModel.Count == 0)
+            {
+                <p class="font-italic">
+                    Правонарушители пока не были найдены.
+                </p>
+            }
+        </div>
+    }
+
+    <div class="row mt-5">
+        @if (Model.SelectedAccidentCategory == (int)AccidentCategoryEnum.Fire)
+        {
+            <div class="col">
+                <span>Постойте! У вас здесь ошибка. Я пожарный. Я могу ее исправить!</span>
+            </div>
+            <div class="col">
+                <a class="btn btn-secondary col-md-2" id="buttonOkAccidentDetails" type="submit" role="button"
+                   asp-controller="Life" asp-action="EditFire"
+                   asp-route-id=@Model.Id>Изменить</a>
+            </div>
+        }
+        else
+        {
+            <div class="col">
+                <span>Постойте! У вас здесь ошибка. Я полицейский. Я могу ее исправить!</span>
+            </div>
+            <div class="col">
+                <a class="btn btn-secondary col-md-2" id="buttonOkAccidentDetails" type="submit" role="button"
+                   asp-controller="Life" asp-action="EditCriminalOffenceDetails"
+                   asp-route-id=@Model.Id>Изменить</a>
+            </div>
+        }
+    </div>
+
+    <div class="row mt-3">
+        <div class="col">
+            Ничего исправлять не нужно
+        </div>
+        <div class="col">
+            <a class="btn btn-secondary col-md-2" id="buttonCancelAccidentDetails" role="button" href="#">Отмена</a>
+        </div>
+    </div>
+</div>
+
+</div>

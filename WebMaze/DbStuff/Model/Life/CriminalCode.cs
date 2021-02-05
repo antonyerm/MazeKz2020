@@ -7,6 +7,7 @@ namespace WebMaze.DbStuff.Model.Life
 {
     public enum CriminalCodeEnum
     {
+        NotAvailable = 0,
         OffencesAgainstPublicOrder = 1,
         Terrorism = 2,
         FirearmsAndOtherWeapons = 3,
@@ -19,6 +20,6 @@ namespace WebMaze.DbStuff.Model.Life
         OffencesAgainstRightsOfProperty = 10,
         FraudulentTransactionsRelatingToContractsAndTrade = 11,
         WilfulAndForbiddenActsInRespectOfCertainProperty = 12,
-        OffencesRelatingToCurrency = 13
+        OffencesRelatingToCurrency = 13,
     }
 }

@@ -1,0 +1,46 @@
+﻿@using WebMaze.Models.Life
+@model FireDetailViewModel
+
+<partial name="_Validation" />
+@section Scripts {
+    @* Latest version of Bootstrap*@
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+}
+
+<form action="@Url.Action("EditFireDetails", "Life")" method="post" class="my-3" id="fireDetails">
+    <h6 class="text-info">Классификация пожара</h6>
+
+    <input type="hidden" asp-for="AccidentId" />
+
+    <div class="mb-3">
+        <div><span asp-validation-for="@Model.FireCause" class="text-danger fs-6"></span></div>
+        <div class="input-group">
+            <span class="input-group-text col-sm-2">Причина возгорания</span>
+            <select asp-for="@Model.FireCause"
+                    asp-items="@Model.FireCauseList"
+                    class="form-select">
+                <option hidden value="">Выберите причину возгорания</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="my-3">
+        <div><span asp-validation-for="@Model.FireClass" class="text-danger fs-6"></span></div>
+        <div class="input-group">
+            <span class="input-group-text col-sm-2">Класс пожара</span>
+            <select asp-for="@Model.FireClass"
+                    asp-items="@Model.FireClassList"
+                    class="form-select">
+                <option hidden value="">Выберите класс пожара</option>
+            </select>
+        </div>
+    </div>
+
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mt-5">
+        <input class="btn btn-secondary" id="buttonOkEditFireDetails" type="submit" value="Отправить" role="button">
+        <a class="btn btn-secondary" id="buttonCancelEditFireDetails" role="button"
+           asp-controller="Life" asp-action="EditFireDetails" asp-route-id="@Model.AccidentId">Отмена</a>
+    </div>
+</form>

@@ -9,6 +9,7 @@ namespace WebMaze.DbStuff.Model.Life
     public class Dictionaries
     {
         public static Dictionaries singleton;
+        public static readonly string NotAvailable = "нет данных";
         
         public Dictionary<AccidentCategoryEnum, string> AccidentCategory = new Dictionary<AccidentCategoryEnum, string>
         {
@@ -18,6 +19,8 @@ namespace WebMaze.DbStuff.Model.Life
 
         public Dictionary<BodilyHarmEnum, string> BodilyHarm = new Dictionary<BodilyHarmEnum, string>
         {
+            [BodilyHarmEnum.NotAvailable] = NotAvailable,
+            [BodilyHarmEnum.None] = "отсутствуют",
             [BodilyHarmEnum.BodilyInjury] = "Телесные повреждения",
             [BodilyHarmEnum.SeriousBodilyInjury] = "Тяжкие телесные повреждения",
             [BodilyHarmEnum.Death] = "Смерть",
@@ -25,6 +28,7 @@ namespace WebMaze.DbStuff.Model.Life
 
         public Dictionary<CriminalCodeEnum, string> CriminalCode = new Dictionary<CriminalCodeEnum, string>
         {
+            [CriminalCodeEnum.NotAvailable] = NotAvailable,
             [CriminalCodeEnum.OffencesAgainstPublicOrder] = "Нарушение общественного порядка",
             [CriminalCodeEnum.Terrorism] = "Терроризм",
             [CriminalCodeEnum.FirearmsAndOtherWeapons] = "Применение огнестрельного и другого оружия",
@@ -43,6 +47,7 @@ namespace WebMaze.DbStuff.Model.Life
         public Dictionary<FireCauseEnum, string> FireCause = new Dictionary<FireCauseEnum, string>
         {
 
+            [FireCauseEnum.NotAvailable] = NotAvailable,
             [FireCauseEnum.unknown] = "Неизвестно",
             [FireCauseEnum.lightning] = "Молния",
             [FireCauseEnum.volcanism] = "Вулкан",
@@ -72,16 +77,13 @@ namespace WebMaze.DbStuff.Model.Life
 
         public Dictionary<FireClassEnum, string> FireClass = new Dictionary<FireClassEnum, string>
         {
+            [FireClassEnum.NotAvailable] = NotAvailable,
             [FireClassEnum.fireClassA] = "Класс A. Обычные горючие материалы",
             [FireClassEnum.fireClassB] = "Класс B. Воспламеняющиеся жидкости (топливо)",
             [FireClassEnum.fireClassC] = "Класс C. Оборудование под напряжением",
             [FireClassEnum.fireClassD] = "Класс D. Воспламеняющиеся металлы",
             [FireClassEnum.fireClassK] = "Класс K. Кухонные масла",
         };
-
-        public Dictionaries()
-        {
-        }
 
         public static string GetText<T>(T enumValue) where T : Enum
         {

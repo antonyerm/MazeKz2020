@@ -1,4 +1,5 @@
 ﻿@using WebMaze.Models.Life
+@using WebMaze.DbStuff.Model.Life 
 @model List<AccidentViewModel>
 @{
     Layout = "_LifeLayout";
@@ -6,50 +7,52 @@
 
 @section Scripts {
     <script src="~/js/Life-AddEditAccident.js"></script>
-}
-@section Styles {
     @* Latest version of Bootstrap*@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
 }
 
-
-
-<div class="container">
+<div class="container overflow-hidden">
     <h3>Сводка происшествий</h3>
 
-    <a class="btn btn-primary mb-3" id="buttonAddAccident" asp-controller="Life" asp-action="AddAccident" role="button">Сообщить о новом происшествии</a>
+    <a class="btn btn-primary mb-3" id="buttonAddAccident" href="#" role="button">Сообщить о новом происшествии</a>
 
     <div id="divAddAccident" class="overflow-hidden"></div>
 
-    <table class="table table-striped mb-3">
+    <table class="table table-striped mb-3" id="accidents">
         <thead>
             <tr>
                 <th>Дата</th>
                 <th>Адрес</th>
                 <th>Тип происшествия</th>
                 <th>Что произошло</th>
-                <th>Действия</th>
+                <th>Ваши действия</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var item in @Model)
             {
-                <tr>
-                    <th>@item.AccidentDate.ToString("g")</th>
-                    <th>@item.SelectedAccidentAddress</th>
-                    <th>@item.SelectedAccidentCategory</th>
-                    <th>@item.AccidentDescription.</th>
-                    <th>
-                        <a class="btn btn-primary" asp-controller="Life" asp-action="ShowDetails" role="button">Подробности</a>
-                    </th>
-                </tr>
+            <tr>
+                <td>@item.AccidentDate.ToString("g")</td>
+                <td>@((item.AddressVM == null)? Dictionaries.NotAvailable : item.AddressVM.City)</td>
+                <td>@item.AccidentCategoryText</td>
+                <td>@item.AccidentDescription</td>
+                <td>
+                    <a class="btn btn-primary m-2 col-lg-4" id=@("accidentDetails-" + item.Id)
+                       href="#" role="button">Подробности</a>
+                    <a class="btn btn-primary m-2 col-lg-4" id=@("accidentEdit-" + item.Id)
+                       href="#" role="button">Изменить</a>
+                    <a class="btn btn-primary m-2 col-lg-4" asp-controller="Life" asp-action="DeleteAccident"
+                       asp-route-id="@item.Id" role="button">Удалить</a>
+                </td>
+            </tr>
             }
         </tbody>
     </table>
+
     @if (Model.Count == 0)
     {
         <p class="font-italic">
-            В этом городе пока никаких событий не происходило. Скукотища!
+            Здесь пока никаких событий не происходило. Скукотища!
         </p>
     }
 </div>

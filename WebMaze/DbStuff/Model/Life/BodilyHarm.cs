@@ -7,8 +7,10 @@ namespace WebMaze.DbStuff.Model.Life
 {
     public enum BodilyHarmEnum
     {
-        BodilyInjury = 0,
-        SeriousBodilyInjury = 1,
-        Death = 3,
+        NotAvailable = 0,
+        None = 1,
+        BodilyInjury = 2,
+        SeriousBodilyInjury = 3,
+        Death = 4,
     }
 }

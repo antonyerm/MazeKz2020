@@ -1,38 +1,59 @@
 ﻿@using WebMaze.Models.Life
-@using WebMaze.DbStuff.Model.Life
 @model AccidentViewModel
 
-<form action="@Url.Action("AddEditAccident", "Life")" method="post" class="mb-3">
+<partial name="_Validation" />
 
-    <div class="input-group mb-3">
-        <span class="input-group-text col-sm-2">Дата</span>
-        <input class="form-control" asp-for="AccidentDate" asp-format="{0:yyyy-MM-ddTHH:mm}">
+
+<form action="@Url.Action("AddEditAccident", "Life")" method="post" class="mb-3" id="newContent">
+
+    <input type="hidden" name="Id" id="Id" value="@Model.Id" />
+
+    <div class="mb-3">
+        <div><span asp-validation-for="AccidentDate" class="text-danger fs-6"></span></div>
+        <div class="input-group">
+            <span class="input-group-text col-sm-2">Дата</span>
+            <input class="form-control" asp-for="AccidentDate" asp-format="{0:yyyy-MM-ddTHH:mm}">
+
+        </div>
     </div>
 
-    <div class="input-group mb-3">
-        <span class="input-group-text col-sm-2">Категория</span>
-        <select asp-for="SelectedAccidentCategory"
-                asp-items="Model.AccidentCategoryList"
-                class="form-select">
-            <option value="">Выберите категорию</option>
-        </select>
+    <div class="mb-3">
+        <div><span asp-validation-for="SelectedAccidentCategory" class="text-danger fs-6"></span></div>
+        <div class="input-group">
+            <span class="input-group-text col-sm-2">Тип происшествия</span>
+            <select asp-for="SelectedAccidentCategory"
+                    asp-items="Model.AccidentCategoryList"
+                    class="form-select">
+                <option hidden value="">Выберите категорию</option>
+            </select>
+        </div>
     </div>
 
-    <div class="input-group mb-3">
-        <span class="input-group-text col-sm-2">Адрес</span>
-        <select asp-for="SelectedAccidentAddress"
-                asp-items="Model.AccidentAddressList"
-                class="form-select">
-            <option value="">Впишите адрес</option>
-        </select>
+    <div class="mb-3">
+        <div><span asp-validation-for="SelectedAccidentAddress" class="text-danger fs-6"></span></div>
+        <div class="input-group">
+            <span class="input-group-text col-sm-2">Адрес</span>
+            <select asp-for="SelectedAccidentAddress"
+                    asp-items="Model.AccidentAddressList"
+                    class="form-select">
+                <option value="">Выберите адрес</option>
+            </select>
+        </div>
     </div>
 
-    <div class="input-group mb-3">
-        <span class="input-group-text col-sm-2">Описание</span>
-        <input class="form-control" asp-for="AccidentDescription"/>
+    <div class="mb-3">
+        <div><span asp-validation-for="AccidentDescription" class="text-danger fs-6"></span></div>
+        <div class="input-group">
+            <span class="input-group-text col-sm-2">Описание</span>
+            <input class="form-control" asp-for="AccidentDescription" />
+        </div>
     </div>
 
-    <input class="btn btn-secondary" type="submit" value="Отправить" role="button">
-    <a class="btn btn-secondary" id="buttonCancelAddAccident" role="button" href="#">Отмена</a>
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div>
+        <input class="btn btn-secondary" id="buttonOkAddAccident" type="submit" value="Отправить" role="button">
+        <a class="btn btn-secondary" id="buttonCancelAddAccident" role="button" href="#">Отмена</a>
+    </div>
 
 </form>

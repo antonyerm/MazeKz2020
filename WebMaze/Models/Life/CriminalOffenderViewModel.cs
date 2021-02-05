@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace WebMaze.Models.Life
 {
-    public class OffenderViewModel
+    public class CriminalOffenderViewModel
     {
-        public long AccidentId { get; set; }
+        public long CitizenId { get; set; }
         public string OffenderName { get; set; }
         public string Verdict { get; set; }
     }

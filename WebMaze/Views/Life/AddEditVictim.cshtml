@@ -1,0 +1,68 @@
+﻿@using WebMaze.Models.Life
+@model AccidentVictimViewModel
+
+<partial name="_Validation" />
+@section Scripts {
+    @* Latest version of Bootstrap*@
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+}
+
+
+
+<form action="@Url.Action("AddEditVictim", "Life")" method="post" class="mb-3" id="victimEdit">
+
+    <input type="hidden" asp-for="@Model.Id" />
+    <input type="hidden" asp-for="@Model.AccidentId" />
+
+    <div class="mb-3">
+        <div><span asp-validation-for="CitizenId" class="text-danger fs-6"></span></div>
+        <div class="input-group">
+            <span class="input-group-text col-sm-2">Пострадавший</span>
+            <select asp-for="CitizenId"
+                    asp-items="Model.CitizenList"
+                    class="form-select">
+                <option hidden value="">Выберите человека</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <div><span asp-validation-for="BodilyHarm" class="text-danger fs-6"></span></div>
+        <div class="input-group">
+            <span class="input-group-text col-sm-2">Телесные повреждения</span>
+            <select asp-for="BodilyHarm"
+                    asp-items="Model.BodilyHarmList"
+                    class="form-select">
+                <option hidden value="">Выберите категорию телесных повреждений</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <div><span asp-validation-for="EconomicLoss" class="text-danger fs-6"></span></div>
+        <div class="input-group">
+            <span class="input-group-text col-sm-2">Экономический ущерб</span>
+            <input class="form-control" asp-for="EconomicLoss" asp-format="{0:F}">
+            <span class="input-group-text">тенге</span>
+
+        </div>
+    </div>
+
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div>
+        <input class="btn btn-secondary" id="buttonOkAddVictim" type="submit" value="Отправить" role="button">
+        @if (Model.AccidentCategory == WebMaze.DbStuff.Model.Life.AccidentCategoryEnum.Fire)
+        {
+            <a class="btn btn-secondary" id="buttonCancelAddVictim" role="button"
+               asp-controller="Life" asp-action="EditFireDetails" asp-route-id="@Model.AccidentId">Отмена</a>
+        }
+        else
+        {
+            <a class="btn btn-secondary" id="buttonCancelAddVictim" role="button"
+               asp-controller="Life" asp-action="EditCriminalOffenceDetails" asp-route-id="@Model.AccidentId">Отмена</a>
+        }
+
+    </div>
+
+</form>

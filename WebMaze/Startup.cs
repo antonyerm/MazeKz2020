@@ -68,7 +68,7 @@ namespace WebMaze
                     config.LoginPath = "/Account/Login";
                     config.AccessDeniedPath = "/Account/AccessDenied";
                 })
-                .AddCookie(PoliceAuthMethod, config => 
+                .AddCookie(PoliceAuthMethod, config =>
                 {
                     config.Cookie.Name = "PUser";
                     config.LoginPath = "/Police/Login";
@@ -87,8 +87,8 @@ namespace WebMaze
             RegistrationRepository(services);
 
             services.AddScoped(s => new UserValidator(
-                s.GetService<CitizenUserRepository>(), 
-                requiredPasswordLength:3));
+                s.GetService<CitizenUserRepository>(),
+                requiredPasswordLength: 3));
 
             services.AddScoped(s => new UserService(s.GetService<CitizenUserRepository>(),
                 s.GetService<RoleRepository>(),
@@ -96,12 +96,13 @@ namespace WebMaze
 
             services.AddHttpContextAccessor();
 
-            services.AddControllersWithViews().AddJsonOptions(opt => 
+            services.AddControllersWithViews().AddJsonOptions(opt =>
             {
                 opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
             });
 
             services.AddHttpClient<CertificateService>();
+
         }
 
         private void RegistrationMapper(IServiceCollection services)
@@ -144,23 +145,69 @@ namespace WebMaze
             configurationExpression.CreateMap<RecordForm, ListRecordFormViewModel>();
             configurationExpression.CreateMap<ListRecordFormViewModel, RecordForm>();
 
-            
+
             configurationExpression.CreateMap<UserTask, UserTaskViewModel>();
             configurationExpression.CreateMap<UserTaskViewModel, UserTask>();
 
             #region Life project
-            //configurationExpression.CreateMap<Accident, AccidentViewModel>()
-            //    .ForMember(
-            //        destination => destination.AccidentCategory,
-            //        opt => opt.ConvertUsing(new EnumConverter()));
-            //configurationExpression.CreateMap<AccidentViewModel, Accident>()
-            //    .ForMember(
-            //        destination => destination.AccidentCategory,
-            //        opt => opt.Ignore());
-            //configurationExpression.CreateMap<Accident, AccidentViewModel>()
-            //    .ForMember(
-            //        destination => destination.AccidentAddress,
-            //        opt => opt.ConvertUsing(new AddressConverter()));
+            configurationExpression.CreateMap<Accident, AccidentViewModel>()
+                .ForMember(
+                    destination => destination.AccidentCategoryText,
+                    opt => opt.MapFrom(source => Dictionaries.GetText(source.AccidentCategory)))
+                .ForMember(
+                    destination => destination.SelectedAccidentCategory,
+                    opt => opt.MapFrom(source => source.AccidentCategory))
+                .ForMember(
+                    destination => destination.SelectedAccidentAddress,
+                    opt => opt.MapFrom(source => source.AccidentAddress.Id));
+            configurationExpression.CreateMap<AccidentViewModel, Accident>();
+
+            configurationExpression.CreateMap<Accident, AccidentDetailsViewModel>()
+                .ForMember(
+                    destination => destination.AccidentCategoryText,
+                    opt => opt.MapFrom(source => Dictionaries.GetText(source.AccidentCategory)))
+                .ForMember(
+                    destination => destination.SelectedAccidentCategory,
+                    opt => opt.MapFrom(source => source.AccidentCategory));
+            //configurationExpression.CreateMap<AccidentDetailsViewModel, Accident>();
+
+            configurationExpression.CreateMap<FireDetail, FireDetailViewModel>()
+                    .ForMember(
+                    destination => destination.FireCauseText,
+                    opt => opt.MapFrom(source => Dictionaries.GetText(source.FireCause ?? FireCauseEnum.NotAvailable)))
+                .ForMember(
+                    destination => destination.FireClassText,
+                    opt => opt.MapFrom(source => Dictionaries.GetText(source.FireClass ?? FireClassEnum.NotAvailable)));
+
+            configurationExpression.CreateMap<AccidentVictim, AccidentVictimViewModel>()
+                .ForMember(
+                    destination => destination.VictimName,
+                    opt => opt.MapFrom(source => source.Victim.FirstName + " " + source.Victim.LastName))
+                .ForMember(
+                    destination => destination.CitizenId,
+                    opt => opt.MapFrom(source => source.Victim.Id))
+                .ForMember(
+                    destination => destination.AccidentId,
+                    opt => opt.MapFrom(source => source.Accident.Id))
+                .ForMember(
+                    destination => destination.BodilyHarmText,
+                    opt => opt.MapFrom(source => Dictionaries.GetText(source.BodilyHarm?? BodilyHarmEnum.NotAvailable)));
+            configurationExpression.CreateMap<AccidentVictimViewModel, AccidentVictim>();
+
+            configurationExpression.CreateMap<HouseDestroyedInFire, AdressViewModel>();
+
+            configurationExpression.CreateMap<CriminalOffender, CriminalOffenderViewModel>()
+                .ForMember(
+                    destination => destination.OffenderName,
+                    opt => opt.MapFrom(source => source.Offender.FirstName + " " + source.Offender.LastName));
+
+            configurationExpression.CreateMap<CriminalOffenceArticle, CriminalOffenceArticleViewModel>()
+                .ForMember(
+                    destination => destination.SelectedCriminalOffenceArticle,
+                    opt => opt.MapFrom(source => source.OffenceArticle))
+                .ForMember(
+                    destination => destination.CriminalOffenceArticleText,
+                    opt => opt.MapFrom(source => Dictionaries.GetText(source.OffenceArticle)));
             #endregion
 
             configurationExpression.CreateMap<Certificate, CertificateViewModel>()
@@ -240,7 +287,9 @@ namespace WebMaze
             services.AddScoped(s => new MedicalInsuranceRepository(s.GetService<WebMazeContext>()));
             services.AddScoped(s => new MedicineCertificateRepository(s.GetService<WebMazeContext>()));
 
-            services.AddScoped<AccidentRepository>(s => new AccidentRepository(s.GetService<WebMazeContext>()));
+            services.AddScoped(s => new AccidentRepository(s.GetService<WebMazeContext>()));
+            services.AddScoped(s => new VictimRepository(s.GetService<WebMazeContext>()));
+            services.AddScoped(s => new FireDetailRepository(s.GetService<WebMazeContext>()));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
