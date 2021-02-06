@@ -18,6 +18,7 @@ namespace WebMaze.Models.Life
         public string AccidentCategoryText { get; set; }
 
         public AdressViewModel AccidentAddressViewModel { get; set; }
+        public string AccidentAddressText { get; set; }
         public string AccidentDescription { get; set; }
 
         public virtual ICollection<AccidentVictimViewModel> AccidentVictimsViewModel { get; set; }
@@ -25,7 +26,7 @@ namespace WebMaze.Models.Life
         // Fire
         public FireDetailViewModel FireDetailViewModel { get; set; }
 
-        public ICollection<AdressViewModel> HousesDestroyedInFireViewModel { get; set; }
+        public ICollection<HouseDestroyedInFireViewModel> HousesDestroyedInFireViewModel { get; set; }
 
         // Criminal Offence
         public ICollection<CriminalOffenceArticleViewModel> CriminalOffenceArticlesViewModel { get; set; }

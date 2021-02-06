@@ -10,6 +10,7 @@
 <form action="@Url.Action("EditFireDetails", "Life")" method="post" class="my-3" id="fireDetails">
     <h6 class="text-info">Классификация пожара</h6>
 
+    <input type="hidden" name="Id" value="@Model.Id"/>
     <input type="hidden" asp-for="AccidentId" />
 
     <div class="mb-3">
@@ -41,6 +42,6 @@
     <div class="mt-5">
         <input class="btn btn-secondary" id="buttonOkEditFireDetails" type="submit" value="Отправить" role="button">
         <a class="btn btn-secondary" id="buttonCancelEditFireDetails" role="button"
-           asp-controller="Life" asp-action="EditFireDetails" asp-route-id="@Model.AccidentId">Отмена</a>
+           asp-controller="Life" asp-action="EditFire" asp-route-id="@Model.AccidentId">Отмена</a>
     </div>
 </form>

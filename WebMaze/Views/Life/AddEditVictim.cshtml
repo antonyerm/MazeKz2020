@@ -55,12 +55,12 @@
         @if (Model.AccidentCategory == WebMaze.DbStuff.Model.Life.AccidentCategoryEnum.Fire)
         {
             <a class="btn btn-secondary" id="buttonCancelAddVictim" role="button"
-               asp-controller="Life" asp-action="EditFireDetails" asp-route-id="@Model.AccidentId">Отмена</a>
+               asp-controller="Life" asp-action="EditFire" asp-route-id="@Model.AccidentId">Отмена</a>
         }
         else
         {
             <a class="btn btn-secondary" id="buttonCancelAddVictim" role="button"
-               asp-controller="Life" asp-action="EditCriminalOffenceDetails" asp-route-id="@Model.AccidentId">Отмена</a>
+               asp-controller="Life" asp-action="EditCriminalOffence" asp-route-id="@Model.AccidentId">Отмена</a>
         }
 
     </div>

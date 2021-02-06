@@ -181,7 +181,10 @@ namespace WebMaze
                     opt => opt.MapFrom(source => source.AccidentCategory))
                 .ForMember(
                     destination => destination.SelectedAccidentAddress,
-                    opt => opt.MapFrom(source => source.AccidentAddress.Id));
+                    opt => opt.MapFrom(source => source.AccidentAddress.Id))
+                .ForMember(
+                    destination => destination.AccidentAddressText,
+                    opt => opt.MapFrom(source => $"г.{source.AccidentAddress.City}, ул.{source.AccidentAddress.Street}, {source.AccidentAddress.HouseNumber}"));
             configurationExpression.CreateMap<AccidentViewModel, Accident>();
 
             configurationExpression.CreateMap<Accident, AccidentDetailsViewModel>()
@@ -191,7 +194,6 @@ namespace WebMaze
                 .ForMember(
                     destination => destination.SelectedAccidentCategory,
                     opt => opt.MapFrom(source => source.AccidentCategory));
-            //configurationExpression.CreateMap<AccidentDetailsViewModel, Accident>();
 
             configurationExpression.CreateMap<FireDetail, FireDetailViewModel>()
                     .ForMember(
@@ -200,11 +202,12 @@ namespace WebMaze
                 .ForMember(
                     destination => destination.FireClassText,
                     opt => opt.MapFrom(source => Dictionaries.GetText(source.FireClass ?? FireClassEnum.NotAvailable)));
+            configurationExpression.CreateMap<FireDetailViewModel, FireDetail>();
 
             configurationExpression.CreateMap<AccidentVictim, AccidentVictimViewModel>()
                 .ForMember(
                     destination => destination.VictimName,
-                    opt => opt.MapFrom(source => source.Victim.FirstName + " " + source.Victim.LastName))
+                    opt => opt.MapFrom(source => $"{source.Victim.FirstName} {source.Victim.LastName}"))
                 .ForMember(
                     destination => destination.CitizenId,
                     opt => opt.MapFrom(source => source.Victim.Id))
@@ -216,12 +219,19 @@ namespace WebMaze
                     opt => opt.MapFrom(source => Dictionaries.GetText(source.BodilyHarm?? BodilyHarmEnum.NotAvailable)));
             configurationExpression.CreateMap<AccidentVictimViewModel, AccidentVictim>();
 
-            configurationExpression.CreateMap<HouseDestroyedInFire, AdressViewModel>();
+            configurationExpression.CreateMap<HouseDestroyedInFire, HouseDestroyedInFireViewModel>()
+                .ForMember(
+                    destination => destination.HouseAddressId,
+                    opt => opt.MapFrom(source => source.DestroyedHouseAddress.Id))
+                .ForMember(
+                    destination => destination.HouseAddressText,
+                    opt => opt.MapFrom(source => $"г.{source.DestroyedHouseAddress.City}, ул.{source.DestroyedHouseAddress.Street}, {source.DestroyedHouseAddress.HouseNumber}"));
+            configurationExpression.CreateMap<HouseDestroyedInFireViewModel, HouseDestroyedInFire>();
 
             configurationExpression.CreateMap<CriminalOffender, CriminalOffenderViewModel>()
                 .ForMember(
                     destination => destination.OffenderName,
-                    opt => opt.MapFrom(source => source.Offender.FirstName + " " + source.Offender.LastName));
+                    opt => opt.MapFrom(source => $"{source.Offender.FirstName} {source.Offender.LastName}"));
 
             configurationExpression.CreateMap<CriminalOffenceArticle, CriminalOffenceArticleViewModel>()
                 .ForMember(
@@ -333,6 +343,7 @@ namespace WebMaze
             services.AddScoped(s => new AccidentRepository(s.GetService<WebMazeContext>()));
             services.AddScoped(s => new VictimRepository(s.GetService<WebMazeContext>()));
             services.AddScoped(s => new FireDetailRepository(s.GetService<WebMazeContext>()));
+            services.AddScoped(s => new HouseDestroyedInFireRepository(s.GetService<WebMazeContext>()));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

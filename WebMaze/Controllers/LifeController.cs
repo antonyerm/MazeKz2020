@@ -23,6 +23,7 @@ namespace WebMaze.Controllers
         private CitizenUserRepository citizenUserRepository;
         private VictimRepository victimRepository;
         private FireDetailRepository fireDetailRepository;
+        private HouseDestroyedInFireRepository houseDestroyedInFireRepository;
         private IMapper mapper;
 
         public LifeController(WebMazeContext context, IMapper mapper,
@@ -30,6 +31,7 @@ namespace WebMaze.Controllers
                               AdressRepository addressRepository,
                               CitizenUserRepository citizenUserRepository,
                               VictimRepository victimRepository,
+                              HouseDestroyedInFireRepository houseDestroyedInFireRepository,
                               FireDetailRepository fireDetailRepository)
         {
             this.context = context;
@@ -38,6 +40,7 @@ namespace WebMaze.Controllers
             this.citizenUserRepository = citizenUserRepository;
             this.victimRepository = victimRepository;
             this.fireDetailRepository = fireDetailRepository;
+            this.houseDestroyedInFireRepository = houseDestroyedInFireRepository;
             this.mapper = mapper;
         }
 
@@ -55,7 +58,7 @@ namespace WebMaze.Controllers
             foreach (var item in accidentsFromDb)
             {
                 var individualAccidentViewModel = mapper.Map<AccidentViewModel>(item);
-                individualAccidentViewModel.AddressVM = mapper.Map<AdressViewModel>(item.AccidentAddress);
+                individualAccidentViewModel.AddressViewModel = mapper.Map<AdressViewModel>(item.AccidentAddress);
                 accidentsViewModel.Add(individualAccidentViewModel);
             }
 
@@ -73,7 +76,8 @@ namespace WebMaze.Controllers
             {
                 Id = 0,
                 AccidentDate = DateTime.Now,
-                AddressVM = null,
+                AddressViewModel = null,
+                AccidentAddressText = Dictionaries.NotAvailable,
                 SelectedAccidentAddress = 0, 
                 AccidentAddressList = accidentAddressList,
                 SelectedAccidentCategory = 0,
@@ -131,21 +135,7 @@ namespace WebMaze.Controllers
             return RedirectToAction(nameof(ShowAccidents));
         }
 
-        public IActionResult AddUsersToDb()
-        {
-            int quantity = 10;
-            var generators = new GeneratorsForLife(citizenUserRepository, addressRepository);
-            generators.GenerateCitizenUsers(quantity);
-            return Content($"Было создано {quantity} пользователей");
-        }
-
-        public IActionResult AddAddressesToDb()
-        {
-            int quantity = 10;
-            var generators = new GeneratorsForLife(citizenUserRepository, addressRepository);
-            generators.GenerateAddresses(quantity);
-            return Content($"Было создано {quantity} адресов");
-        }
+        
 
         [HttpGet]
         public IActionResult AccidentDetails(long id)
@@ -216,6 +206,48 @@ namespace WebMaze.Controllers
             victimRepository.Delete(victimId);
             return RedirectToAction(nameof(EditFire), new { id = accidentId });
         }
+
+        [HttpGet]
+        public IActionResult AddEditHouseDestroyedInFire(long houseAddressId, long accidentId)
+        {
+            HouseDestroyedInFireViewModel houseViewModel;
+            if (houseAddressId == 0)
+            {
+                houseViewModel = new HouseDestroyedInFireViewModel
+                {
+                    AccidentId = accidentId,
+                    HouseAddressId = 0,
+                };
+            }
+            else
+            {
+                var houseFromDb = houseDestroyedInFireRepository.GetByHouseId(houseAddressId);
+                houseViewModel = mapper.Map<HouseDestroyedInFireViewModel>(houseFromDb);
+            }
+
+            houseViewModel.HouseAddressesList = GetSelectListOfAddressesFromDb();
+            return View("~/Views/Life/AddEditHouseDestroyedInFire.cshtml", houseViewModel);
+        }
+
+            [HttpPost]
+        public IActionResult AddEditHouseDestroyedInFire(HouseDestroyedInFireViewModel houseViewModel)
+        {
+            var house = mapper.Map<HouseDestroyedInFire>(houseViewModel);
+            var address = addressRepository.Get(houseViewModel.HouseAddressId);
+            house.DestroyedHouseAddress = address;
+            var accident = accidentRepository.Get(houseViewModel.AccidentId);
+            house.Accident = accident;
+
+            houseDestroyedInFireRepository.Save(house);
+            return RedirectToAction(nameof(EditFire), new { id = houseViewModel.AccidentId });
+        }
+
+        public IActionResult DeleteHouseDestroyedInFire(long houseAddressId, long accidentId)
+        {
+            houseDestroyedInFireRepository.Delete(houseAddressId);
+            return RedirectToAction(nameof(EditFire), new { id = accidentId });
+        }
+
 
         [HttpGet]
         public IActionResult EditFireDetails(long id)
@@ -291,6 +323,8 @@ namespace WebMaze.Controllers
             }
             accidentDetailsViewModel.AccidentAddressViewModel = addressViewModel;
 
+            accidentDetailsViewModel.AccidentAddressText = $"г.{addressViewModel.City}, ул.{addressViewModel.Street}, {addressViewModel.HouseNumber}";
+
             // Fire details
             var fireDetailFromDb = accidentFromDb.FireDetail;
             var fireDetailViewModel = mapper.Map<FireDetailViewModel>(fireDetailFromDb);
@@ -309,13 +343,13 @@ namespace WebMaze.Controllers
 
             // Houses Destroyed in fire list
             // no items in the list = there were no destroyed houes (not "no info available")
-            var housesDestroyedFromDb = accidentFromDb.HousesDestroyedInFire;
-            var housesDestroyedInFireViewModel = new List<AdressViewModel>();
-            if (housesDestroyedFromDb.Count != 0)
+            var housesDestroyedInFireFromDb = accidentFromDb.HousesDestroyedInFire;
+            var housesDestroyedInFireViewModel = new List<HouseDestroyedInFireViewModel>();
+            if (housesDestroyedInFireFromDb.Count != 0)
             {
-                foreach (var house in housesDestroyedFromDb)
+                foreach (var house in housesDestroyedInFireFromDb)
                 {
-                    housesDestroyedInFireViewModel.Add(mapper.Map<AdressViewModel>(house));
+                    housesDestroyedInFireViewModel.Add(mapper.Map<HouseDestroyedInFireViewModel>(house));
                 }
             }
             accidentDetailsViewModel.HousesDestroyedInFireViewModel = housesDestroyedInFireViewModel;
@@ -370,7 +404,7 @@ namespace WebMaze.Controllers
         {
             // TODO: take only a few records from address table
             var addressListFromDb = this.addressRepository.GetAll().
-                Select(a => new { Id = a.Id, Address = $"{a.City}, ул.{a.Street}, д.{a.HouseNumber}"});
+                Select(a => new { Id = a.Id, Address = $"{a.City}, ул.{a.Street}, {a.HouseNumber}"});
             var selectList = new SelectList(addressListFromDb, "Id", "Address");
             return selectList;
         }
@@ -384,6 +418,22 @@ namespace WebMaze.Controllers
             //var citizensListFromDb = this.citizenUserRepository.GetAll();
             var selectList = new SelectList(citizensListFromDb, "Id", "Name"); 
             return selectList;
+        }
+
+        public IActionResult AddUsersToDb()
+        {
+            int quantity = 10;
+            var generators = new GeneratorsForLife(citizenUserRepository, addressRepository);
+            generators.GenerateCitizenUsers(quantity);
+            return Content($"Было создано {quantity} пользователей");
+        }
+
+        public IActionResult AddAddressesToDb()
+        {
+            int quantity = 10;
+            var generators = new GeneratorsForLife(citizenUserRepository, addressRepository);
+            generators.GenerateAddresses(quantity);
+            return Content($"Было создано {quantity} адресов");
         }
     }
 }

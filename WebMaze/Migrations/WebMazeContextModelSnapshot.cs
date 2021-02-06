@@ -962,11 +962,12 @@ namespace WebMaze.Migrations
                     b.Navigation("MedicalInsurance");
 
                     b.Navigation("MedicineCertificate");
+
+                    b.Navigation("ReceivedTransactions");
+
                     b.Navigation("RecordForms");
 
                     b.Navigation("SentTransactions");
-
-                    b.Navigation("ReceivedTransactions");
 
                     b.Navigation("CriminalOffenders");
                 });
@@ -982,8 +983,6 @@ namespace WebMaze.Migrations
                     b.Navigation("FireDetail");
 
                     b.Navigation("HousesDestroyedInFire");
-
-                   
                 });
 
             modelBuilder.Entity("WebMaze.DbStuff.Model.Police.Policeman", b =>

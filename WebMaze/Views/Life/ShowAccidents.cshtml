@@ -33,7 +33,7 @@
             {
             <tr>
                 <td>@item.AccidentDate.ToString("g")</td>
-                <td>@((item.AddressVM == null)? Dictionaries.NotAvailable : item.AddressVM.City)</td>
+                <td>@(item.AccidentAddressText)</td>
                 <td>@item.AccidentCategoryText</td>
                 <td>@item.AccidentDescription</td>
                 <td>

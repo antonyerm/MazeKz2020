@@ -31,22 +31,24 @@ namespace WebMaze.DbStuff.Repository.Life
             };
             var lastNamesMale = new List<string>
             {
-                "Котов", "Рыбаков", "Горшков", "Меркушев", "Фокин", "Матвеев", "Цушко", "Васильев", "Афанасьев", "Барановский", 
+                "Котов", "Рыбаков", "Горшков", "Меркушев", "Фокин", "Матвеев", "Цушко", "Васильев", "Афанасьев", "Барановский",
                 "Красинец", "Семёнов", "Новиков", "Горбачёв", "Шамрыло", "Игнатьев", "Гриневская", "Михеев", "Ермаков", "Филиппов",
             };
             var lastNamesFemale = new List<string>
             {
                 "Петрова", "Пестова", "Шарапова", "Ярова", "Моисеенко", "Иващенко", "Моисеенко", "Гончар", "Кличко", "Петренко", "Шкраба",
-                "Лазарева", "Егорова",  "Права", "Вишнякова", "Белоусова", "Орлова", "Плаксий", "Милославска", "Данилова", 
+                "Лазарева", "Егорова",  "Права", "Вишнякова", "Белоусова", "Орлова", "Плаксий", "Милославска", "Данилова",
             };
+            var ListOfFullNames = new List<string>();
 
-            for (int i = 0; i < 10; i++)
+            do
             {
                 string firstName;
                 string lastName;
-                var maleOrFemale = rnd.Next(0, 2);
+                var isMale = rnd.Next(0, 2);
 
-                if (maleOrFemale == 0)
+
+                if (isMale == 1)
                 {
                     firstName = firstNamesMale[rnd.Next(firstNamesMale.Count)];
                     lastName = lastNamesMale[rnd.Next(lastNamesMale.Count)];
@@ -57,22 +59,29 @@ namespace WebMaze.DbStuff.Repository.Life
                     lastName = lastNamesMale[rnd.Next(lastNamesMale.Count)];
                 }
 
-                var startBirthdate = new DateTime(1950, 1, 1);
-                var range = (new DateTime(2010, 1, 1) - startBirthdate).Days;
-                var birthdate = startBirthdate.AddDays(rnd.Next(range));
-
-                var newCitizen = new CitizenUser
+                var FullName = firstName + " " + lastName;
+                if (!ListOfFullNames.Any(s => s == FullName))
                 {
-                    Id = 0,
-                    Login = firstName + "_" + lastName,
-                    Password = "123",
-                    FirstName = firstName,
-                    LastName = lastName,
-                    BirthDate = birthdate,
-                    Gender = maleOrFemale == 0 ? "муж." : "жен."
-                };
-                citizenUserRepository.Save(newCitizen);
+                    // имя-фамилия уникально, сохраняем
+                    ListOfFullNames.Add(FullName);
+                    var startBirthdate = new DateTime(1950, 1, 1);
+                    var range = (new DateTime(2010, 1, 1) - startBirthdate).Days;
+                    var birthdate = startBirthdate.AddDays(rnd.Next(range));
+
+                    var newCitizen = new CitizenUser
+                    {
+                        Id = 0,
+                        Login = firstName + "_" + lastName,
+                        Password = "123",
+                        FirstName = firstName,
+                        LastName = lastName,
+                        BirthDate = birthdate,
+                        Gender = isMale == 1 ? Gender.Male : Gender.Female,
+                    };
+                    citizenUserRepository.Save(newCitizen);
+                }
             }
+            while (ListOfFullNames.Count < 10);
 
         }
 
@@ -80,7 +89,7 @@ namespace WebMaze.DbStuff.Repository.Life
         {
             var rnd = new Random();
 
-            var cities = new List<string> 
+            var cities = new List<string>
             {
                 "Алматы", "Нур-Султан", "Шымкент", "Караганды", "Актобе", "Тараз", "Павлодар", "Усть-Каменогорск", "Семей", "Уральск",
                 "Костанай", "Кызылорда", "Петропавловск", "Атырау", "Актау", "Темиртау", "Туркестан", "Кокшетау", "Талдыкорган", "Экибастуз",

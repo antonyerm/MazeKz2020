@@ -19,8 +19,9 @@ namespace WebMaze.Models.Life
         public string AccidentCategoryText { get; set; }
         public IEnumerable<SelectListItem> AccidentCategoryList { get; set; }
 
-        public AdressViewModel AddressVM { get; set; }
+        public AdressViewModel AddressViewModel { get; set; }
         public long? SelectedAccidentAddress { get; set; }
+        public string AccidentAddressText { get; set; }
         public IEnumerable<SelectListItem> AccidentAddressList { get; set; }
         
         public string AccidentDescription { get; set; }
