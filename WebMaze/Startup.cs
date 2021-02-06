@@ -29,16 +29,18 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using WebMaze.Models.Police;
 using WebMaze.DbStuff.Model.Police;
-using WebMaze.Models.PoliceCertificate;
 using WebMaze.DbStuff.Repository.MedicineRepo;
 using WebMaze.Models.Roles;
 using WebMaze.Models.Police.Violation;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authorization;
+using WebMaze.Infrastructure;
 using WebMaze.Models.HDDoctor;
 using WebMaze.Models.HDManager;
 using WebMaze.DbStuff.Repository.Life;
 using WebMaze.DbStuff.Model.Life;
 using WebMaze.Models.Life;
+using WebMaze.Models.Transactions;
 
 namespace WebMaze
 {
@@ -58,7 +60,7 @@ namespace WebMaze
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=WebMazeKz;Trusted_Connection=True;";
+            var connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=WebMazeKz;Trusted_Connection=True;MultipleActiveResultSets=true;";
             services.AddDbContext<WebMazeContext>(option => option.UseSqlServer(connectionString));
 
             services.AddAuthentication(AuthMethod)
@@ -82,22 +84,43 @@ namespace WebMaze
                     config.AccessDeniedPath = "/HealthDepartment/AccessDenied";
                 });
 
+            services.AddTransient<IAuthorizationHandler, RestrictAccessToBlockedUsersHandler>(s =>
+                new RestrictAccessToBlockedUsersHandler(s.GetService<CitizenUserRepository>()));
+
+            services.AddTransient<IAuthorizationHandler, RestrictAccessToDeadUsersHandler>(s =>
+                new RestrictAccessToDeadUsersHandler(s.GetService<CitizenUserRepository>()));
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("Admins", policy =>
+                {
+                    policy.RequireAuthenticatedUser();
+                    policy.RequireRole("Admin");
+                    policy.Requirements.Add(new RestrictAccessToBlockedUsersRequirement());
+                    policy.Requirements.Add(new RestrictAccessToDeadUsersRequirement());
+                });
+            });
+
             RegistrationMapper(services);
 
             RegistrationRepository(services);
 
             services.AddScoped(s => new UserValidator(
-                s.GetService<CitizenUserRepository>(),
-                requiredPasswordLength: 3));
+                s.GetService<CitizenUserRepository>(), 
+                requiredPasswordLength:3));
 
             services.AddScoped(s => new UserService(s.GetService<CitizenUserRepository>(),
                 s.GetService<RoleRepository>(),
                 s.GetService<IHttpContextAccessor>()));
 
+            services.AddScoped(s => new TransactionService(s.GetService<TransactionRepository>(),
+                s.GetService<CitizenUserRepository>()));
+
             services.AddHttpContextAccessor();
 
             services.AddControllersWithViews().AddJsonOptions(opt =>
             {
+                opt.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
                 opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
             });
 
@@ -144,7 +167,6 @@ namespace WebMaze
 
             configurationExpression.CreateMap<RecordForm, ListRecordFormViewModel>();
             configurationExpression.CreateMap<ListRecordFormViewModel, RecordForm>();
-
 
             configurationExpression.CreateMap<UserTask, UserTaskViewModel>();
             configurationExpression.CreateMap<UserTaskViewModel, UserTask>();
@@ -218,15 +240,23 @@ namespace WebMaze
             configurationExpression.CreateMap<Policeman, PolicemanViewModel>()
                 .ForMember(dest => dest.ProfileVM, opt => opt.MapFrom(p => p.User));
 
-            configurationExpression.CreateMap<PoliceCertificate, PoliceCertificateItemViewModel>();
-
             configurationExpression.CreateMap<Violation, ViolationItemViewModel>()
-                .ForMember(dest => dest.UserName, opt => opt.MapFrom(v => v.User.FirstName + " " + v.User.LastName))
-                .ForMember(dest => dest.PolicemanName, opt => opt.MapFrom(v => v.BlamingPoliceman.User.FirstName + " " + v.BlamingPoliceman.User.LastName));
+                .ForMember(dest => dest.BlamedUserName, opt => opt.MapFrom(v => v.BlamedUser.FirstName + " " + v.BlamedUser.LastName))
+                .ForMember(dest => dest.PolicemanName, opt => opt.MapFrom(v => v.ViewingPoliceman.User.FirstName + " " + v.ViewingPoliceman.User.LastName));
 
-            configurationExpression.CreateMap<ViolationRegistrationViewModel, Violation>();
+            configurationExpression.CreateMap<ViolationDeclarationViewModel, Violation>().ReverseMap();
 
-            configurationExpression.CreateMap<PoliceCertificate, PoliceCertificateItemViewModel>();
+            configurationExpression.CreateMap<CitizenUser, FoundUsersViewModel>()
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(u => u.FirstName + " " + u.LastName));
+
+            configurationExpression.CreateMap<CitizenUser, UserVerificationViewModel>();
+
+            configurationExpression.CreateMap<Violation, CriminalItemViewModel>()
+                .ForMember(dest => dest.BlamingUserName, opt => opt.MapFrom(v => v.BlamingUser.FirstName + " " + v.BlamingUser.LastName))
+                .ForMember(dest => dest.BlamedUserName, opt => opt.MapFrom(v => v.BlamedUser.FirstName + " " + v.BlamedUser.LastName))
+                .ForMember(dest => dest.ViewingPolicemanName, opt => opt.MapFrom(v => v.ViewingPoliceman.User.FirstName + " " + v.ViewingPoliceman.User.LastName))
+                .ForMember(dest => dest.PolicemanLogin, opt => opt.MapFrom(v => v.ViewingPoliceman.User.Login))
+                .ForMember(dest => dest.BlamedUserAvatar, opt => opt.MapFrom(v => v.BlamedUser.AvatarUrl));
 
             configurationExpression.CreateMap<MedicalInsurance, MedicalInsuranceViewModel>();
             configurationExpression.CreateMap<MedicalInsuranceViewModel, MedicalInsurance>();
@@ -248,8 +278,20 @@ namespace WebMaze
 
             configurationExpression.CreateMap<RoleViewModel, Role>();
 
+            configurationExpression.CreateMap<Transaction, TransactionViewModel>()
+                .ForMember(dest => dest.SenderLogin, opt => opt.MapFrom(src => src.Sender.Login))
+                .ForMember(dest => dest.RecipientLogin, opt => opt.MapFrom(src => src.Recipient.Login));
+
+            configurationExpression.CreateMap<TransactionViewModel, Transaction>();
+
             configurationExpression.CreateMap<MedicineCertificate, MedicineCertificateViewModel>();
             configurationExpression.CreateMap<MedicineCertificateViewModel, MedicineCertificate>();
+
+            configurationExpression.CreateMap<ReceptionOfPatients, ReceptionOfPatientsViewModel>();
+            configurationExpression.CreateMap<ReceptionOfPatientsViewModel, ReceptionOfPatients>();
+
+            configurationExpression.CreateMap<ReceptionOfPatients, UserPageViewModel>();
+            configurationExpression.CreateMap<UserPageViewModel, ReceptionOfPatients>();
 
             var mapperConfiguration = new MapperConfiguration(configurationExpression);
             var mapper = new Mapper(mapperConfiguration);
@@ -267,7 +309,6 @@ namespace WebMaze
             services.AddScoped(s => new AdressRepository(s.GetService<WebMazeContext>()));
 
             services.AddScoped(s => new PolicemanRepository(s.GetService<WebMazeContext>()));
-            services.AddScoped(s => new PoliceCertificateRepository(s.GetService<WebMazeContext>()));
             services.AddScoped(s => new ViolationRepository(s.GetService<WebMazeContext>()));
 
             services.AddScoped(s => new HealthDepartmentRepository(s.GetService<WebMazeContext>()));
@@ -283,9 +324,11 @@ namespace WebMaze
             services.AddScoped(s => new UserTaskRepository(s.GetService<WebMazeContext>()));
             services.AddScoped(s => new CertificateRepository(s.GetService<WebMazeContext>()));
             services.AddScoped(s => new RoleRepository(s.GetService<WebMazeContext>()));
+            services.AddScoped(s => new TransactionRepository(s.GetService<WebMazeContext>()));
 
             services.AddScoped(s => new MedicalInsuranceRepository(s.GetService<WebMazeContext>()));
             services.AddScoped(s => new MedicineCertificateRepository(s.GetService<WebMazeContext>()));
+            services.AddScoped(s => new ReceptionOfPatientsRepository(s.GetService<WebMazeContext>()));
 
             services.AddScoped(s => new AccidentRepository(s.GetService<WebMazeContext>()));
             services.AddScoped(s => new VictimRepository(s.GetService<WebMazeContext>()));

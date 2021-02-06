@@ -19,8 +19,6 @@ namespace WebMaze.DbStuff
 
         public DbSet<Violation> Violations { get; set; }
 
-        public DbSet<PoliceCertificate> PoliceCertificates { get; set; }
-
         public DbSet<HealthDepartment> HealthDepartment { get; set; }
         public DbSet<RecordForm> RecordForms { get; set; }
 
@@ -49,8 +47,11 @@ namespace WebMaze.DbStuff
 
         public DbSet<Certificate> Certificates { get; set; }
 
+        public DbSet<Transaction> Transactions { get; set; }
+
         public DbSet<MedicalInsurance> MedicalInsurances { get; set; }
         public DbSet<MedicineCertificate> MedicineCertificates { get; set; }
+        public DbSet<ReceptionOfPatients> ReceptionOfPatients { get; set; }
 
         public WebMazeContext(DbContextOptions dbContext) : base(dbContext) { }
 
@@ -68,8 +69,8 @@ namespace WebMaze.DbStuff
 
             modelBuilder
                 .Entity<CitizenUser>()
-                .HasMany(p => p.Roles)
-                .WithMany(p => p.Users)
+                .HasMany(citizenUser => citizenUser.Roles)
+                .WithMany(role => role.Users)
                 .UsingEntity(j => j.ToTable("CitizenUserRoles"));
 
             modelBuilder.Entity<CitizenUser>()
@@ -78,14 +79,18 @@ namespace WebMaze.DbStuff
 
             modelBuilder.Entity<CitizenUser>()
                 .HasMany(citizen => citizen.RecordForms)
-                .WithOne(records => records.CitizenId);
+                .WithOne(records => records.Citizen);
 
             modelBuilder.Entity<CitizenUser>()
                 .HasOne(p => p.MedicineCertificate)
                 .WithOne(o => o.User);
 
             modelBuilder.Entity<CitizenUser>()
-                .HasMany(citizen => citizen.Certificates)
+                .HasMany(x => x.DoctorsAppointments)
+                .WithOne(x => x.EnrolledCitizen);
+
+            modelBuilder.Entity<CitizenUser>()
+                .HasMany(citizenUser => citizenUser.Certificates)
                 .WithOne(certificate => certificate.Owner);
 
             #region Life Project
@@ -140,6 +145,14 @@ namespace WebMaze.DbStuff
                 .HasColumnType("decimal(18,2");
             #endregion
 
+            modelBuilder.Entity<CitizenUser>()
+                .HasMany(citizenUser => citizenUser.SentTransactions)
+                .WithOne(transaction => transaction.Sender);
+
+            modelBuilder.Entity<CitizenUser>()
+                .HasMany(citizenUser => citizenUser.ReceivedTransactions)
+                .WithOne(transaction => transaction.Recipient);
+            
             base.OnModelCreating(modelBuilder);
         }
     }

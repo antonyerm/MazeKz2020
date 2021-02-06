@@ -2,17 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AutoMapper;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using WebMaze.DbStuff.Model;
-using WebMaze.DbStuff.Model.UserAccount;
-using WebMaze.DbStuff.Repository;
-using WebMaze.Models.Account;
 using WebMaze.Models.Certificates;
-using System.Net.Http;
-using System.Resources;
-using Newtonsoft.Json;
+using WebMaze.Filters;
 using WebMaze.Services;
 
 namespace WebMaze.Controllers
@@ -26,11 +18,25 @@ namespace WebMaze.Controllers
             this.certificateService = certificateService;
         }
 
-        public async Task<IActionResult> Index()
+        [ImportModelStateErrorsFromTempData]
+        public async Task<IActionResult> Index(string userLogin, string certificateName)
         {
-            var certificateList = await certificateService.GetCertificatesAsync();
+            List<CertificateViewModel> certificates;
 
-            return View(certificateList);
+            if (!string.IsNullOrWhiteSpace(certificateName))
+            {
+                certificates = await certificateService.GetCertificatesByName(certificateName);
+            }
+            else if (!string.IsNullOrWhiteSpace(userLogin))
+            {
+                certificates = await certificateService.GetUserCertificates(userLogin);
+            }
+            else
+            {
+                certificates = await certificateService.GetCertificatesAsync();
+            }
+
+            return View(certificates);
         }
 
         public ViewResult Get()
@@ -54,9 +60,73 @@ namespace WebMaze.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(CertificateViewModel certificate)
         {
-            var certificateViewModel = await certificateService.CreateCertificateAsync(certificate);
+            if (ModelState.IsValid)
+            {
+                var operationResult = await certificateService.CreateCertificateAsync(certificate);
 
-            return View(certificateViewModel);
+                if (!operationResult.Succeeded)
+                {
+                    operationResult.Errors.ForEach(error => ModelState.AddModelError(string.Empty, error));
+                }
+            }
+            
+            return View(certificate);
+        }
+
+        [HttpPost]
+        [ExportModelStateErrorsToTempData]
+        public async Task<IActionResult> Issue(string userLogin)
+        {
+            var operationResult = await certificateService.IssueCertificate("Birth Certificate", userLogin,
+                "Government", "The certificate documents the birth of the person", TimeSpan.FromDays(3650));
+            
+            if (!operationResult.Succeeded)
+            {
+                operationResult.Errors.ForEach(error => ModelState.AddModelError(string.Empty, error));
+            }
+
+            var urlReferrer = Request.Headers["Referer"].ToString();
+
+            return Redirect(urlReferrer);
+
+            /* Second approach, a lot of code duplicates:
+
+            var uri = new Uri(urlReferrer);
+            var queryDictionary = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+            
+            var certificates = new List<CertificateViewModel>();
+
+            if (!queryDictionary.Any())
+            {
+                certificates = await certificateService.GetCertificatesAsync();
+            }
+            else if(!string.IsNullOrWhiteSpace(queryDictionary["certificateName"]))
+            {
+                certificates = await certificateService.GetCertificatesByName(queryDictionary["certificateName"]);
+            }
+            else if (!string.IsNullOrWhiteSpace(queryDictionary["userLogin"]))
+            {
+                certificates = await certificateService.GetUserCertificates(queryDictionary["userLogin"]);
+            }
+
+            return View(nameof(Index), certificates);
+            */
+        }
+
+        [HttpPost]
+        [ExportModelStateErrorsToTempData]
+        public async Task<IActionResult> Revoke(string certificateName, string userLogin)
+        {
+            var operationResult = await certificateService.RevokeCertificate(certificateName, userLogin);
+
+            if (!operationResult.Succeeded)
+            {
+                operationResult.Errors.ForEach(error => ModelState.AddModelError(string.Empty, error));
+            }
+
+            var urlReferrer = Request.Headers["Referer"].ToString();
+
+            return Redirect(urlReferrer);
         }
 
         public async Task<IActionResult> Update(long id)
@@ -69,17 +139,33 @@ namespace WebMaze.Controllers
         [HttpPost]
         public async Task<IActionResult> Update(CertificateViewModel certificateViewModel)
         {
-            await certificateService.UpdateCertificateAsync(certificateViewModel);
+            if (ModelState.IsValid)
+            {
+                var operationResult = await certificateService.UpdateCertificateAsync(certificateViewModel);
 
-            return RedirectToAction(nameof(Index));
+                if (!operationResult.Succeeded)
+                {
+                    operationResult.Errors.ForEach(error => ModelState.AddModelError(string.Empty, error));
+                }
+            }
+
+            return View(certificateViewModel);
         }
 
         [HttpPost]
+        [ExportModelStateErrorsToTempData]
         public async Task<IActionResult> Delete(long id)
         {
-            await certificateService.DeleteCertificateAsync(id);
+            var operationResult = await certificateService.DeleteCertificateAsync(id);
 
-            return RedirectToAction("Index");
+            if (!operationResult.Succeeded)
+            {
+                operationResult.Errors.ForEach(error => ModelState.AddModelError(string.Empty, error));
+            }
+
+            var urlReferrer = Request.Headers["Referer"].ToString();
+
+            return Redirect(urlReferrer);
         }
     }
 }

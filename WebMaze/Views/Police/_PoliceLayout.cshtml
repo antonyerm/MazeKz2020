@@ -3,6 +3,10 @@
 }
 
 @section Scripts{
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
+    <script src="https://code.jquery.com/jquery-1.9.1.js"></script>
+    <script src="https://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+    <script src="~/js/Police.js"></script>
     @RenderSection("Scripts", required: false)
 }
 
@@ -13,14 +17,12 @@
             <span class="navbar-toggler-icon"></span>
         </button>
 
-        <div class="collapse navbar-collapse w-100 order-1 order-md-0" id="navbarCollapsedContent">
+        <div class="collapse navbar-collapse w-100" id="navbarCollapsedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Home</a>
+                    <a class="nav-link" asp-controller="Police" asp-action="AddViolation">Написать заявление</a>
                 </li>
             </ul>
-        </div>
-        <div class="collapse navbar-collapse w-100 order-3" id="navbarCollapsedContent">
             <ul class="navbar-nav ml-auto">
                 @if (User.Identity.IsAuthenticated)
                 {
@@ -30,7 +32,6 @@
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropDown">
                             <a class="dropdown-item" asp-controller="Police" asp-action="Account">Личный кабинет</a>
-                            <a class="dropdown-item" asp-controller="PoliceCertificate" asp-action="Items">Сертификаты</a>
                             <div class="dropdown-divider"></div>
                             <div class="dropdown-item">
                                 <form asp-controller="Police" asp-action="Logout" method="post">
