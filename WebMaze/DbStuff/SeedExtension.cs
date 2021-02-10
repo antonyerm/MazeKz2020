@@ -41,7 +41,7 @@ namespace WebMaze.DbStuff
                 throw new Exception("Cannot get RoleRepository from ServiceProvider.");
             }
 
-            var roleNames = new List<string> { AdminRoleName, "Policeman", "Doctor" };
+            var roleNames = new List<string> { AdminRoleName, "Policeman", "Doctor", "Fireman" };
 
             foreach (var roleName in roleNames.Where(roleName => !roleRepository.RoleExists(roleName)))
             {

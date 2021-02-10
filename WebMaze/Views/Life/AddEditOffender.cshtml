@@ -1,0 +1,50 @@
+﻿@using WebMaze.Models.Life
+@model CriminalOffenderViewModel
+
+<partial name="~/Views/Shared/Life/_Validation.cshtml" />
+@section Scripts {
+    @* Remote validation scripts*@
+    <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+    @* Latest version of Bootstrap*@
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+}
+
+
+
+<form action="@Url.Action("AddEditOffender", "Life")" method="post" class="mb-3" id="offenderEdit">
+
+    <input type="hidden" asp-for="@Model.Id" />
+    <input type="hidden" asp-for="@Model.AccidentId" />
+    <input type="hidden" asp-for="@Model.InitialCitizenId" />
+
+
+    <div class="mb-3">
+        <div><span asp-validation-for="CitizenId" class="text-danger fs-6"></span></div>
+        <div class="input-group">
+            <span class="input-group-text col-sm-2">Правонарушитель</span>
+            <select asp-for="CitizenId"
+                    asp-items="Model.CitizenList"
+                    class="form-select">
+                <option hidden value="">Выберите человека</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <div><span asp-validation-for="Verdict" class="text-danger fs-6"></span></div>
+        <div class="input-group">
+            <span class="input-group-text col-sm-2">Приговор</span>
+            <input class="form-control" asp-for="Verdict" asp-format="{0:F}">
+        </div>
+    </div>
+
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mt-5">
+        <input class="btn btn-secondary" id="buttonOkEditOffender" type="submit" value="Отправить" role="button">
+        <a class="btn btn-secondary" id="buttonCancelEditOffender" role="button"
+           asp-controller="Life" asp-action="EditCriminalOffence" asp-route-id="@Model.AccidentId">Отмена</a>
+    </div>
+
+</form>

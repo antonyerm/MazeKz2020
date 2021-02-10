@@ -30,7 +30,6 @@ namespace WebMaze.Models.Life
 
         // Criminal Offence
         public ICollection<CriminalOffenceArticleViewModel> CriminalOffenceArticlesViewModel { get; set; }
-        public IEnumerable<SelectListItem> CriminalOffenceArticlesList { get; set; }
         public ICollection<CriminalOffenderViewModel> CriminalOffendersViewModel { get; set; }
 
         public string ReturnUrl { get; set; }

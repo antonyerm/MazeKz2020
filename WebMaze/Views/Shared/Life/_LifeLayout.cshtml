@@ -1,0 +1,42 @@
+﻿@using WebMaze.Services
+@inject UserService userService
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Жизнь";
+}
+
+@RenderSection("Scripts", required: false)
+
+
+
+<div class="border-bottom d-flex">
+    <div class="ml-auto">
+        @if (User.Identity.IsAuthenticated)
+        {
+            var currentUser = userService.GetCurrentUser();
+        <div>
+            Вы зашли как @(currentUser.FirstName + " " + currentUser.LastName) |
+            <a asp-action="Logout" asp-controller="Account">Выйти</a>
+        </div>
+        <div>
+            Ваши роли:
+            @foreach (var role in currentUser.Roles)
+            {
+            <span>@role.Name</span>
+            }
+        </div>
+        }
+        else
+        {
+            <div>
+                Вы не зашли в систему. 
+                <a asp-action="Login" asp-controller="Account">Войти</a>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="mb-5">
+    @RenderBody()
+</div>

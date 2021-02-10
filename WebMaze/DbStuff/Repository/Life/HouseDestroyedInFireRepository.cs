@@ -9,9 +9,10 @@ namespace WebMaze.DbStuff.Repository.Life
         {
         }
 
-        public HouseDestroyedInFire GetByHouseId(long houseId)
+        public bool hasHouseAndAccident(long houseAddressId, long accidentId)
         {
-            return dbSet.SingleOrDefault(x => x.DestroyedHouseAddress.Id == houseId);
+            return dbSet.Any(x => x.DestroyedHouseAddress.Id == houseAddressId 
+                && x.Accident.Id == accidentId);
         }
     }
 }

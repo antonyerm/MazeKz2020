@@ -1,14 +1,21 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using WebMaze.DbStuff.Model.Life;
 
 namespace WebMaze.Models.Life
 {
     public class CriminalOffenceArticleViewModel
     {
-        public int? SelectedCriminalOffenceArticle { get; set; }
+        public long Id { get; set; }
+        public long AccidentId { get; set; }
+        [Required(ErrorMessage ="Пожалуйста, выберите статью кодекса")]
+        public CriminalCodeEnum? CriminalOffenceArticleEnum { get; set; }
         public string CriminalOffenceArticleText { get; set; }
+        public IEnumerable<SelectListItem> CriminalOffenceArticlesList { get; set; }
+        
     }
 }

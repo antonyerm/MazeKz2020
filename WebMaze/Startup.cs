@@ -39,6 +39,7 @@ using WebMaze.Models.HDDoctor;
 using WebMaze.Models.HDManager;
 using WebMaze.DbStuff.Repository.Life;
 using WebMaze.DbStuff.Model.Life;
+using WebMaze.DbStuff.Service.Life;
 using WebMaze.Models.Life;
 using WebMaze.Models.Transactions;
 
@@ -116,6 +117,10 @@ namespace WebMaze
             services.AddScoped(s => new TransactionService(s.GetService<TransactionRepository>(),
                 s.GetService<CitizenUserRepository>()));
 
+            services.AddScoped(s => new LifeService(s.GetService<CitizenUserRepository>(),
+                s.GetService<AdressRepository>(),
+                s.GetService<RoleRepository>()));
+
             services.AddHttpContextAccessor();
 
             services.AddControllersWithViews().AddJsonOptions(opt =>
@@ -184,7 +189,10 @@ namespace WebMaze
                     opt => opt.MapFrom(source => source.AccidentAddress.Id))
                 .ForMember(
                     destination => destination.AccidentAddressText,
-                    opt => opt.MapFrom(source => $"г.{source.AccidentAddress.City}, ул.{source.AccidentAddress.Street}, {source.AccidentAddress.HouseNumber}"));
+                    opt => opt.MapFrom(source => source.AccidentAddress == null ? Dictionaries.NotAvailable : $"г.{source.AccidentAddress.City}, ул.{source.AccidentAddress.Street}, {source.AccidentAddress.HouseNumber}"))
+                .ForMember(
+                    destination => destination.AccidentDescription,
+                    opt => opt.MapFrom(source => source.AccidentDescription ?? Dictionaries.NotAvailable));
             configurationExpression.CreateMap<AccidentViewModel, Accident>();
 
             configurationExpression.CreateMap<Accident, AccidentDetailsViewModel>()
@@ -212,16 +220,25 @@ namespace WebMaze
                     destination => destination.CitizenId,
                     opt => opt.MapFrom(source => source.Victim.Id))
                 .ForMember(
+                    destination => destination.InitialCitizenId,
+                    opt => opt.MapFrom(source => source.Victim.Id))
+                .ForMember(
                     destination => destination.AccidentId,
                     opt => opt.MapFrom(source => source.Accident.Id))
                 .ForMember(
                     destination => destination.BodilyHarmText,
-                    opt => opt.MapFrom(source => Dictionaries.GetText(source.BodilyHarm?? BodilyHarmEnum.NotAvailable)));
+                    opt => opt.MapFrom(source => Dictionaries.GetText(source.BodilyHarm?? BodilyHarmEnum.NotAvailable)))
+            .ForMember(
+                    destination => destination.EconomicLossText,
+                    opt => opt.MapFrom(source => source.EconomicLoss == null ? Dictionaries.NotAvailable : source.EconomicLoss.ToString()));
             configurationExpression.CreateMap<AccidentVictimViewModel, AccidentVictim>();
 
             configurationExpression.CreateMap<HouseDestroyedInFire, HouseDestroyedInFireViewModel>()
                 .ForMember(
                     destination => destination.HouseAddressId,
+                    opt => opt.MapFrom(source => source.DestroyedHouseAddress.Id))
+                .ForMember(
+                    destination => destination.InitialHouseAddressId,
                     opt => opt.MapFrom(source => source.DestroyedHouseAddress.Id))
                 .ForMember(
                     destination => destination.HouseAddressText,
@@ -231,15 +248,41 @@ namespace WebMaze
             configurationExpression.CreateMap<CriminalOffender, CriminalOffenderViewModel>()
                 .ForMember(
                     destination => destination.OffenderName,
-                    opt => opt.MapFrom(source => $"{source.Offender.FirstName} {source.Offender.LastName}"));
+                    opt => opt.MapFrom(source => $"{source.Offender.FirstName} {source.Offender.LastName}"))
+                .ForMember(
+                    destination => destination.CitizenId,
+                    opt => opt.MapFrom(source => source.Offender.Id))
+                .ForMember(
+                    destination => destination.InitialCitizenId,
+                    opt => opt.MapFrom(source => source.Offender.Id))
+                .ForMember(
+                    destination => destination.AccidentId,
+                    opt => opt.MapFrom(source => source.Accident.Id));
+            configurationExpression.CreateMap<CriminalOffenderViewModel, CriminalOffender>();
 
             configurationExpression.CreateMap<CriminalOffenceArticle, CriminalOffenceArticleViewModel>()
                 .ForMember(
-                    destination => destination.SelectedCriminalOffenceArticle,
+                    destination => destination.CriminalOffenceArticleEnum,
                     opt => opt.MapFrom(source => source.OffenceArticle))
                 .ForMember(
                     destination => destination.CriminalOffenceArticleText,
                     opt => opt.MapFrom(source => Dictionaries.GetText(source.OffenceArticle)));
+            configurationExpression.CreateMap<CriminalOffenceArticleViewModel, CriminalOffenceArticle>()
+                .ForMember(
+                    destination => destination.OffenceArticle,
+                    opt => opt.MapFrom(source => source.CriminalOffenceArticleEnum));
+
+            configurationExpression.CreateMap<CitizenUser, UserViewModel>()
+                .ForMember(
+                    destination => destination.FullName,
+                    opt => opt.MapFrom(source => source.FirstName + " " + source.LastName))
+            .ForMember(
+                    destination => destination.RolesString,
+                    opt => opt.MapFrom(source => string.Join(", ", source.Roles.Select(r => r.Name))));
+            configurationExpression.CreateMap<Adress, AddressViewModel>()
+                .ForMember(
+                    destination => destination.AddressText,
+                    opt => opt.MapFrom(source => $"г.{source.City}, ул.{source.Street}, {source.HouseNumber}"));
             #endregion
 
             configurationExpression.CreateMap<Certificate, CertificateViewModel>()
@@ -344,6 +387,9 @@ namespace WebMaze
             services.AddScoped(s => new VictimRepository(s.GetService<WebMazeContext>()));
             services.AddScoped(s => new FireDetailRepository(s.GetService<WebMazeContext>()));
             services.AddScoped(s => new HouseDestroyedInFireRepository(s.GetService<WebMazeContext>()));
+            services.AddScoped(s => new CriminalOffenceArticleRepository(s.GetService<WebMazeContext>()));
+            services.AddScoped(s => new CriminalOffenderRepository(s.GetService<WebMazeContext>()));
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

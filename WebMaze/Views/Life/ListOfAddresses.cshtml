@@ -1,0 +1,50 @@
+﻿@using WebMaze.Models.Life
+@using WebMaze.DbStuff.Model.Life 
+@model List<AddressViewModel>
+@{
+    Layout = "~/Views/Shared/Life/_LifeLayout.cshtml";
+}
+
+@section Scripts {
+    @* Latest version of Bootstrap*@
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+}
+
+<div class="container">
+    <h3>Список адресов (домов) в базе данных</h3>
+
+    <div class="my-3">
+        @if ((int)ViewData["quantity"] != 0)
+        {
+        <span>Только что было добавлено @ViewData["quantity"] адресов.</span>
+        }
+    </div>
+
+    <table class="table table-striped mb-3" id="users">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Адрес</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in @Model)
+            {
+            <tr>
+                <td>@user.Id</td>
+                <td>@user.AddressText</td>
+            </tr>
+            }
+        </tbody>
+    </table>
+
+    @if (Model.Count == 0)
+    {
+        <p class="font-italic">
+            Адресов пока нет.
+        </p>
+    }
+
+<a class="btn btn-primary" asp-action="Index" asp-controller="Life">Вернуться</a>
+</div>
+

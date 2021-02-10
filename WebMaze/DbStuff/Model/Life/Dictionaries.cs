@@ -48,7 +48,7 @@ namespace WebMaze.DbStuff.Model.Life
         {
 
             [FireCauseEnum.NotAvailable] = NotAvailable,
-            [FireCauseEnum.unknown] = "Неизвестно",
+            [FireCauseEnum.unknown] = "Не смотря на все усилия, причина не установлена",
             [FireCauseEnum.lightning] = "Молния",
             [FireCauseEnum.volcanism] = "Вулкан",
             [FireCauseEnum.gasEmission] = "Выход природного газа",

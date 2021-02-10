@@ -1,0 +1,35 @@
+﻿@using WebMaze.Models.Life
+@model CriminalOffenceArticleViewModel
+
+<partial name="~/Views/Shared/Life/_Validation.cshtml" />
+@section Scripts {
+    @* Latest version of Bootstrap*@
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+}
+
+<form action="@Url.Action("AddEditArticle", "Life")" method="post" class="my-3" id="CriminalOffenceArticle">
+    <h6 class="text-info">Статья Уголовного Кодекса, к котрой отнесено преступление</h6>
+
+    <input type="hidden" name="Id" value="@Model.Id"/>
+    <input type="hidden" asp-for="AccidentId" />
+
+    <div class="mb-3">
+        <div><span asp-validation-for="@Model.CriminalOffenceArticleEnum" class="text-danger fs-6"></span></div>
+        <div class="input-group">
+            <span class="input-group-text col-sm-2">Статья</span>
+            <select asp-for="@Model.CriminalOffenceArticleEnum"
+                    asp-items="@Model.CriminalOffenceArticlesList"
+                    class="form-select">
+                <option hidden value="">Выберите статью уголовного кодекса</option>
+            </select>
+        </div>
+    </div>
+
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mt-5">
+        <input class="btn btn-secondary" id="buttonOkEditArticle" type="submit" value="Отправить" role="button">
+        <a class="btn btn-secondary" id="buttonCancelEditArticle" role="button"
+           asp-controller="Life" asp-action="EditCriminalOffence" asp-route-id="@Model.AccidentId">Отмена</a>
+    </div>
+</form>

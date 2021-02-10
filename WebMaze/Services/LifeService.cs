@@ -3,20 +3,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using WebMaze.DbStuff.Model;
+using WebMaze.DbStuff.Repository;
 
-namespace WebMaze.DbStuff.Repository.Life
+namespace WebMaze.DbStuff.Service.Life
 {
-    public class GeneratorsForLife
+    public class LifeService
     {
         private CitizenUserRepository citizenUserRepository;
         private AdressRepository addressRepository;
+        private RoleRepository roleRepository;
 
-        public GeneratorsForLife(CitizenUserRepository citizenUserRepository, AdressRepository addressRepository)
+        public LifeService(CitizenUserRepository citizenUserRepository, 
+                                 AdressRepository addressRepository,
+                                 RoleRepository roleRepository)
         {
             this.citizenUserRepository = citizenUserRepository;
             this.addressRepository = addressRepository;
+            this.roleRepository = roleRepository;
         }
-        public void GenerateCitizenUsers(int quantity)
+        public int GenerateCitizenUsers(int quantity)
         {
             var rnd = new Random();
             var firstNamesMale = new List<string>
@@ -32,14 +37,22 @@ namespace WebMaze.DbStuff.Repository.Life
             var lastNamesMale = new List<string>
             {
                 "Котов", "Рыбаков", "Горшков", "Меркушев", "Фокин", "Матвеев", "Цушко", "Васильев", "Афанасьев", "Барановский",
-                "Красинец", "Семёнов", "Новиков", "Горбачёв", "Шамрыло", "Игнатьев", "Гриневская", "Михеев", "Ермаков", "Филиппов",
+                "Красинец", "Семёнов", "Новиков", "Горбачёв", "Шамрыло", "Игнатьев", "Гриневский", "Михеев", "Ермаков", "Филиппов",
             };
             var lastNamesFemale = new List<string>
             {
                 "Петрова", "Пестова", "Шарапова", "Ярова", "Моисеенко", "Иващенко", "Моисеенко", "Гончар", "Кличко", "Петренко", "Шкраба",
                 "Лазарева", "Егорова",  "Права", "Вишнякова", "Белоусова", "Орлова", "Плаксий", "Милославска", "Данилова",
             };
-            var ListOfFullNames = new List<string>();
+            var ListOfFullNames = citizenUserRepository.GetAll()
+                .Select(user => user.FirstName + " " + user.LastName).ToList();
+            var ListOfRoles = roleRepository.GetAll();
+            
+            // количество попыток найти уникальное сочетание имя+фамилия
+            var attemptNumber = 0;
+            // количество успешных попыток найти уникальное сочетание имя+фамилия
+            var successfulAttemptNumber = 0;
+
 
             do
             {
@@ -77,15 +90,20 @@ namespace WebMaze.DbStuff.Repository.Life
                         LastName = lastName,
                         BirthDate = birthdate,
                         Gender = isMale == 1 ? Gender.Male : Gender.Female,
+                        Roles = new List<Role>(),
                     };
+                    newCitizen.Roles.Add(ListOfRoles[rnd.Next(ListOfRoles.Count)]);
                     citizenUserRepository.Save(newCitizen);
+                    successfulAttemptNumber++;
                 }
+                // имя-фамилия не уникально, ищем другие
+                attemptNumber++;
             }
-            while (ListOfFullNames.Count < 10);
-
+            while (attemptNumber < quantity);
+            return successfulAttemptNumber;
         }
 
-        public void GenerateAddresses(int quantity)
+        public int GenerateAddresses(int quantity)
         {
             var rnd = new Random();
 
@@ -115,6 +133,8 @@ namespace WebMaze.DbStuff.Repository.Life
                 };
                 addressRepository.Save(newAddress);
             }
+
+            return quantity;
         }
     }
 }

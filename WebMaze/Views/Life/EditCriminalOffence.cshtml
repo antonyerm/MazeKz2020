@@ -1,0 +1,162 @@
+﻿@using WebMaze.Models.Life
+@using WebMaze.DbStuff.Model.Life
+@model AccidentDetailsViewModel
+
+@{
+    Layout = "~/Views/Shared/Life/_LifeLayout.cshtml";
+}
+
+@section Scripts {
+    @* Latest version of Bootstrap*@
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+}
+
+@{
+    var parameters = new Dictionary<string, string>
+{
+        { "accidentId", Model.Id.ToString() },
+    };
+}
+
+<partial name="~/Views/Shared/Life/_Validation.cshtml" />
+
+<div id="newContent" class="container">
+    <div class="my-3">
+        <h5 class="text-info">Начальные сведения, полученные диспетчером полиции</h5>
+        <div><strong>Дата преступления: </strong>@Model.AccidentDate.ToString("g")</div>
+        <div>
+            <strong>Место преступления: </strong>@Model.AccidentAddressText
+        </div>
+        <div><strong>Краткое описание преступления: </strong>@Model.AccidentDescription</div>
+    </div>
+
+
+    <div class="mb-3">
+        <h5 class="text-info">Данные, предоставленные полицией (редактирование)</h5>
+        <h6 class="text-info">Возбуждено уголовное дело по статьям</h6>
+        <a class="btn btn-secondary col-md-2 my-3" id="buttonAddArticle" role="button"
+           asp-controller="Life" asp-action="AddEditArticle" asp-all-route-data="@parameters">Добавить</a>
+        <table class="table table-striped table-secondary mb-3" id="articles">
+            <thead>
+                <tr>
+                    <th>Наименование статьи</th>
+                    <th>Ваши действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var article in Model.CriminalOffenceArticlesViewModel)
+                {
+                    <tr>
+                        <td>@article.CriminalOffenceArticleText</td>
+                        <td>
+                            @{
+                                parameters["criminalOffenceArticleId"] = article.Id.ToString();
+                            }
+                            <a class="btn btn-secondary col-lg-4 m-3" id="buttonEditVictim" role="button"
+                               asp-controller="Life" asp-action="AddEditArticle" asp-all-route-data="@parameters">Изменить</a>
+                            <a class="btn btn-secondary col-lg-4 m-3" id="buttonDeleteVictim" role="button"
+                               asp-controller="Life" asp-action="DeleteCriminalOffenceArticle" asp-all-route-data="@parameters">Удалить</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        @if (Model.CriminalOffenceArticlesViewModel.Count == 0)
+        {
+            <p class="font-italic">
+                Происшествие пока не классифицировано.
+            </p>
+        }
+    </div>
+
+    <div class="mt-4">
+        <h6 class="text-info">Пострадавшие в происшествии</h6>
+        <a class="btn btn-secondary col-md-2 my-3" id="buttonAddVictim" role="button"
+           asp-controller="Life" asp-action="AddEditVictim" asp-all-route-data="@parameters">Добавить</a>
+        <table class="table table-striped table-secondary mb-3" id="victims">
+            <thead>
+                <tr>
+                    <th>Имя</th>
+                    <th>Телесные повреждение</th>
+                    <th>Экономический ущерб</th>
+                    <th>Ваши действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var victim in Model.AccidentVictimsViewModel)
+                {
+                    <tr>
+                        <td>@victim.VictimName</td>
+                        <td>@victim.BodilyHarmText</td>
+                        <td>@victim.EconomicLossText</td>
+                        <td>
+                            @{
+                                parameters["victimId"] = victim.Id.ToString();
+                            }
+                            <a class="btn btn-secondary col-lg-4 m-3" id="buttonEditVictim" role="button"
+                               asp-controller="Life" asp-action="AddEditVictim" asp-all-route-data="@parameters">Изменить</a>
+                            <a class="btn btn-secondary col-lg-4 m-3" id="buttonDeleteVictim" role="button"
+                               asp-controller="Life" asp-action="DeleteVictim" asp-all-route-data="@parameters">Удалить</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        @if (Model.AccidentVictimsViewModel.Count == 0)
+        {
+            <p class="font-italic">
+                Пострадавших нет.
+            </p>
+        }
+    </div>
+
+    <div class="mt-4">
+        <h6 class="text-info">Провонарушители в происшествии</h6>
+        <a class="btn btn-secondary col-md-2 my-3" id="buttonAddOffender" role="button"
+           asp-controller="Life" asp-action="AddEditOffender" asp-all-route-data="@parameters">Добавить</a>
+        <table class="table table-striped table-secondary mb-3" id="offenders">
+            <thead>
+                <tr>
+                    <th>Имя</th>
+                    <th>Приговор</th>
+                    <th>Ваши действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var offender in Model.CriminalOffendersViewModel)
+                {
+                    <tr>
+                        <td>@offender.OffenderName</td>
+                        <td>@offender.Verdict</td>
+                        <td>
+                            @{
+                                parameters["offenderId"] = offender.Id.ToString();
+                            }
+                            <a class="btn btn-secondary col-lg-4 m-3" id="buttonEditVictim" role="button"
+                               asp-controller="Life" asp-action="AddEditOffender" asp-all-route-data="@parameters">Изменить</a>
+                            <a class="btn btn-secondary col-lg-4 m-3" id="buttonDeleteVictim" role="button"
+                               asp-controller="Life" asp-action="DeleteCriminalOffender" asp-all-route-data="@parameters">Удалить</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        @if (Model.AccidentVictimsViewModel.Count == 0)
+        {
+            <p class="font-italic">
+                Правонарушителей не выявлено.
+            </p>
+        }
+    </div>
+
+    <div class="row mt-3">
+        <div class="col">
+            Вот теперь всё правильно!
+        </div>
+        <div class="col">
+            <a class="btn btn-primary col-md-2" id="buttonCancelFiretDetails"
+               role="button" href="@Url.Action("ShowAccidents", "Life")">Вернуться</a>
+        </div>
+    </div>
+</div>
+

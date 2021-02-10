@@ -1,8 +1,11 @@
 ﻿@using WebMaze.Models.Life
 @model HouseDestroyedInFireViewModel
 
-<partial name="_Validation" />
+<partial name="~/Views/Shared/Life/_Validation.cshtml" />
 @section Scripts {
+    @* Remote validation scripts*@
+    <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
     @* Latest version of Bootstrap*@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
 }
@@ -13,6 +16,7 @@
 
     <input type="hidden" asp-for="@Model.Id" />
     <input type="hidden" asp-for="@Model.AccidentId" />
+    <input type="hidden" asp-for="@Model.InitialHouseAddressId" />
 
     <div class="mb-3">
         <div><span asp-validation-for="HouseAddressId" class="text-danger fs-6"></span></div>
@@ -30,8 +34,8 @@
 
     <div class="mt-5">
         <input class="btn btn-secondary" id="buttonOkAddHouse" type="submit" value="Отправить" role="button">
-            <a class="btn btn-secondary" id="buttonCancelAddVictim" role="button"
-               asp-controller="Life" asp-action="EditFire" asp-route-id="@Model.AccidentId">Отмена</a>
+        <a class="btn btn-secondary" id="buttonCancelAddVictim" role="button"
+           asp-controller="Life" asp-action="EditFire" asp-route-id="@Model.AccidentId">Отмена</a>
     </div>
 
 </form>

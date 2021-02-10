@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using WebMaze.DbStuff.Model.Life;
@@ -12,7 +14,12 @@ namespace WebMaze.Models.Life
     {
         public long Id { get; set; }
         public long AccidentId { get; set; }
-        public long HouseAddressId { get; set; }
+        [Required(ErrorMessage = "Укажите, пожалуйста, адрес сгоревшего дома")]
+        [Remote(action: "IsBurntHouseUnique", controller: "Life", 
+            AdditionalFields = nameof(AccidentId) + "," + nameof(InitialHouseAddressId), 
+            ErrorMessage = "Такой дом уже указывался")]
+        public long? HouseAddressId { get; set; }
+        public long? InitialHouseAddressId { get; set; }
         public string HouseAddressText { get; set; }
         public IEnumerable<SelectListItem> HouseAddressesList { get; set; }
     }

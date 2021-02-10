@@ -3,7 +3,7 @@
 @model AccidentDetailsViewModel
 
 @{
-    Layout = "_LifeLayout";
+    Layout = "~/Views/Shared/Life/_LifeLayout.cshtml";
 }
 
 @section Scripts {
@@ -19,15 +19,14 @@
     };
 }
 
-<partial name="_Validation" />
+<partial name="~/Views/Shared/Life/_Validation.cshtml" />
 
 <div id="newContent" class="container">
     <div class="my-3">
-        <h5 class="text-info">Начальные данные, полученные из вызова пожарной службы</h5>
+        <h5 class="text-info">Начальные сведения, полученные диспетчером пожарной службы</h5>
         <div><strong>Дата пожара: </strong>@Model.AccidentDate.ToString("g")</div>
         <div>
-            <strong>Место пожара: </strong>@((Model.AccidentAddressViewModel == null)?
-            Dictionaries.NotAvailable : Model.AccidentAddressText)
+            <strong>Место пожара: </strong>@Model.AccidentAddressText
         </div>
         <div><strong>Краткое описание пожара: </strong>@Model.AccidentDescription</div>
     </div>
@@ -64,7 +63,7 @@
                     <tr>
                         <td>@victim.VictimName</td>
                         <td>@victim.BodilyHarmText</td>
-                        <td>@victim.EconomicLoss</td>
+                        <td>@victim.EconomicLossText</td>
                         <td>
                             @{
                                 parameters["victimId"] = victim.Id.ToString();
@@ -104,7 +103,7 @@
                         <td>@house.HouseAddressText</td>
                         <td>
                             @{
-                                parameters["houseAddressId"] = house.HouseAddressId.ToString();
+                                parameters["houseDestroyedInFireId"] = house.Id.ToString();
                             }
                             <a class="btn btn-secondary col-lg-4 m-3" id="buttonEditHouse" role="button"
                                asp-controller="Life" asp-action="AddEditHouseDestroyedInFire" asp-all-route-data="@parameters">Изменить</a>
