@@ -39,7 +39,6 @@ using WebMaze.Models.HDDoctor;
 using WebMaze.Models.HDManager;
 using WebMaze.DbStuff.Repository.Life;
 using WebMaze.DbStuff.Model.Life;
-using WebMaze.DbStuff.Service.Life;
 using WebMaze.Models.Life;
 using WebMaze.Models.Transactions;
 
@@ -50,6 +49,7 @@ namespace WebMaze
         public const string AuthMethod = "CoockieAuth";
         public const string PoliceAuthMethod = "PoliceAuth";
         public const string MedicineAuth = "CookieMedicineAuth";
+        public const string LifeAuth = "CookieLifeAuth";
 
         public Startup(IConfiguration configuration)
         {
@@ -85,6 +85,14 @@ namespace WebMaze
                     config.AccessDeniedPath = "/HealthDepartment/AccessDenied";
                 });
 
+            services.AddAuthentication(LifeAuth)
+                .AddCookie(LifeAuth, config =>
+                 {
+                     config.Cookie.Name = "LifeAuth";
+                     config.LoginPath = "/Life/Login";
+                     config.AccessDeniedPath = "/Life/AccessDenied";
+                 });
+
             services.AddTransient<IAuthorizationHandler, RestrictAccessToBlockedUsersHandler>(s =>
                 new RestrictAccessToBlockedUsersHandler(s.GetService<CitizenUserRepository>()));
 
@@ -119,7 +127,8 @@ namespace WebMaze
 
             services.AddScoped(s => new LifeService(s.GetService<CitizenUserRepository>(),
                 s.GetService<AdressRepository>(),
-                s.GetService<RoleRepository>()));
+                s.GetService<RoleRepository>(),
+                s.GetService<IHttpContextAccessor>()));
 
             services.AddHttpContextAccessor();
 

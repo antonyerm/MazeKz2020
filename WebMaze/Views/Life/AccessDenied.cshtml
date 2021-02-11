@@ -1,0 +1,49 @@
+﻿@using WebMaze.Services
+@inject LifeService lifeService
+
+@{
+    Layout = "~/Views/Shared/Life/_LifeLayout.cshtml";
+}
+
+<partial name="~/Views/Shared/Life/_Validation.cshtml" />
+@section Scripts {
+    @* Latest version of Bootstrap*@
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+}
+
+@{
+    var currentUser = lifeService.GetCurrentUser();
+}
+
+<div class="card text-dark bg-warning mb-3" style="max-width: 18rem;">
+    <div class="card-header">Ошибка авторизации</div>
+    <div class="card-body">
+        <h5 class="card-title">Отказано в доступе</h5>
+        <p class="card-text">
+            @if (currentUser == null)
+            {
+                <div>
+                    Вы пытаетесь получить доступ к ресурсу, но не вошли в систему. Войдите в систему с соответствующими правами.
+                </div>
+            }
+            else
+            {
+                <div>
+                    Вы пытаетесь получить доступ к ресурсу, войдя в систему как @(currentUser.FirstName + " " + currentUser.LastName), обладая правами @foreach (var role in currentUser.Roles)
+                    {
+                        <span>@role.Name</span>
+                    }.
+                </div>
+                <div>
+                    К сожалению, этих прав недостаточно для получения доступа к ресурсу. Войдите в систему под другим логином.
+                </div>
+            }
+        </p>
+    </div>
+</div>
+
+
+   
+
+
+

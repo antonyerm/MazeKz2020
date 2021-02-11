@@ -1,25 +1,30 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using WebMaze.DbStuff.Model;
 using WebMaze.DbStuff.Repository;
 
-namespace WebMaze.DbStuff.Service.Life
+namespace WebMaze.Services
 {
     public class LifeService
     {
         private CitizenUserRepository citizenUserRepository;
         private AdressRepository addressRepository;
         private RoleRepository roleRepository;
+        private IHttpContextAccessor httpContextAccessor;
 
         public LifeService(CitizenUserRepository citizenUserRepository, 
                                  AdressRepository addressRepository,
-                                 RoleRepository roleRepository)
+                                 RoleRepository roleRepository,
+                                 IHttpContextAccessor httpContextAccessor)
         {
             this.citizenUserRepository = citizenUserRepository;
             this.addressRepository = addressRepository;
             this.roleRepository = roleRepository;
+            this.httpContextAccessor = httpContextAccessor;
         }
         public int GenerateCitizenUsers(int quantity)
         {
@@ -135,6 +140,20 @@ namespace WebMaze.DbStuff.Service.Life
             }
 
             return quantity;
+        }
+
+        public CitizenUser GetCurrentUser()
+        {
+            var idStr = httpContextAccessor.HttpContext.
+                User.Claims.SingleOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(idStr))
+            {
+                return null;
+            }
+
+            var id = int.Parse(idStr);
+            var citizen = citizenUserRepository.Get(id);
+            return citizen;
         }
     }
 }

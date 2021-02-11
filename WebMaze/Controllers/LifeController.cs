@@ -13,8 +13,12 @@ using WebMaze.DbStuff.Model;
 using WebMaze.Models.Account;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using WebMaze.DbStuff.Service.Life;
 using WebMaze.Controllers.CustomAttribute.Life;
+using Microsoft.AspNetCore.Authorization;
+using System.Threading.Tasks;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using WebMaze.Services;
 
 namespace WebMaze.Controllers
 {
@@ -447,6 +451,64 @@ namespace WebMaze.Controllers
             return RedirectToAction(nameof(EditCriminalOffence), new { id = accidentId });
         }
 
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult Login()
+        {
+            var viewModel = new LifeLoginViewModel();
+            viewModel.ReturnUrl = Request.Query["ReturnUrl"];
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<IActionResult> Login(LifeLoginViewModel loginViewModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(loginViewModel);
+            }
+
+            var user = citizenUserRepository
+                .GetUserByNameAndPassword(loginViewModel.Login, loginViewModel.Password);
+            if (user == null)
+            {
+                ModelState.AddModelError(String.Empty, "Такого логина и пароля не существует.");
+                return View(loginViewModel);
+            }
+
+            var recordId = new Claim(ClaimTypes.NameIdentifier, user.Id.ToString());
+            var recordName = new Claim(ClaimTypes.Name, user.Login);
+            var recordAuthMethod = new Claim(ClaimTypes.AuthenticationMethod, Startup.LifeAuth);
+            var claims = new List<Claim>() { recordId, recordName, recordAuthMethod };
+            var claimsIdentity = new ClaimsIdentity(claims, Startup.LifeAuth);
+            var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+            await HttpContext.SignInAsync(claimsPrincipal);
+            
+            if (string.IsNullOrEmpty(loginViewModel.ReturnUrl))
+            {
+                return RedirectToAction("Index", "Life");
+            }
+
+            return Redirect(loginViewModel.ReturnUrl);
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
+
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync();
+            return RedirectToAction("Index", "Life");
+        }
+
+
+        // ------------- utility methods------------------------------------------------------------
         private AccidentDetailsViewModel GetAccidentDetailsViewModel(long id)
         {
             var accidentFromDb = accidentRepository.Get(id);
@@ -511,13 +573,6 @@ namespace WebMaze.Controllers
                 {
                     var articleViewModel = mapper.Map<CriminalOffenceArticleViewModel>(article);
                     criminalOffenceArticlesViewModel.Add(articleViewModel);
-                    //new CriminalOffenceArticleViewModel
-                    //{
-                    //    Id = article.Id,
-                    //    AccidentId = id,
-                    //    CriminalOffenceArticleEnum = article.OffenceArticle,
-                    //    CriminalOffenceArticleText = Dictionaries.GetText<CriminalCodeEnum>(article.OffenceArticle),
-                    //});
                 }
             }
             accidentDetailsViewModel.CriminalOffenceArticlesViewModel = criminalOffenceArticlesViewModel;

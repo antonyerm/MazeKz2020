@@ -1,0 +1,40 @@
+﻿@using WebMaze.Models.Life
+@model LifeLoginViewModel
+
+<partial name="~/Views/Shared/Life/_Validation.cshtml" />
+@section Scripts {
+    @* Latest version of Bootstrap*@
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+}
+
+
+
+<form action="@Url.Action("Login", "Life")" method="post" class="mb-3" id="login">
+
+    <input type="hidden" asp-for="@Model.ReturnUrl" />
+
+    <div class="mb-3">
+        <div><span asp-validation-for="Login" class="text-danger fs-6"></span></div>
+        <div class="input-group">
+            <span class="input-group-text col-sm-2">Логин</span>
+            <input class="form-control" asp-for="Login">
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <div><span asp-validation-for="Password" class="text-danger fs-6"></span></div>
+        <div class="input-group">
+            <span class="input-group-text col-sm-2">Пароль</span>
+            <input class="form-control" asp-for="Password">
+        </div>
+    </div>
+
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mt-5">
+        <input class="btn btn-secondary" id="buttonOkLogin" type="submit" value="Отправить" role="button">
+        <a class="btn btn-secondary" id="buttonCancelLogin" role="button"
+           asp-controller="Life" asp-action="Index">Отмена</a>
+    </div>
+
+</form>

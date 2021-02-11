@@ -1,5 +1,5 @@
 ﻿@using WebMaze.Services
-@inject UserService userService
+@inject LifeService lifeService
 
 @{
     Layout = "_Layout";
@@ -14,10 +14,10 @@
     <div class="ml-auto">
         @if (User.Identity.IsAuthenticated)
         {
-            var currentUser = userService.GetCurrentUser();
+            var currentUser = lifeService.GetCurrentUser();
         <div>
             Вы зашли как @(currentUser.FirstName + " " + currentUser.LastName) |
-            <a asp-action="Logout" asp-controller="Account">Выйти</a>
+            <a asp-action="Logout" asp-controller="Life">Выйти</a>
         </div>
         <div>
             Ваши роли:
@@ -31,7 +31,7 @@
         {
             <div>
                 Вы не зашли в систему. 
-                <a asp-action="Login" asp-controller="Account">Войти</a>
+                <a asp-action="Login" asp-controller="Life">Войти</a>
             </div>
         }
     </div>

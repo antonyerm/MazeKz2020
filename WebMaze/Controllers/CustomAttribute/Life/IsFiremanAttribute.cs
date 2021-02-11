@@ -8,10 +8,8 @@ using WebMaze.Services;
 
 namespace WebMaze.Controllers.CustomAttribute.Life
 {
-    public class IsFireman : IsPoliceman
+    public class IsFireman : BaseAuthAttribute
     {
-        //private string roleName;
-
         public IsFireman()
         {
             base.roleName = "Fireman";
