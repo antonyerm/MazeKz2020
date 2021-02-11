@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace WebMaze.DbStuff.Model.Life
+﻿namespace WebMaze.DbStuff.Model.Life
 {
     public class HouseDestroyedInFire : BaseModel
     {
@@ -14,5 +9,5 @@ namespace WebMaze.DbStuff.Model.Life
         public virtual Accident Accident { get; set; }
         // the N side of 1:N
         public virtual Adress DestroyedHouseAddress { get; set; }
-}
+    }
 }

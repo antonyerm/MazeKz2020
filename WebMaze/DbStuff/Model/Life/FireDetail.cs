@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace WebMaze.DbStuff.Model.Life
+﻿namespace WebMaze.DbStuff.Model.Life
 {
     public class FireDetail : BaseModel
     {

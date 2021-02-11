@@ -1,11 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
-using WebMaze.DbStuff.Model.Life;
-using WebMaze.DbStuff.Model;
 using WebMaze.Models.Account;
 
 namespace WebMaze.Models.Life
@@ -14,7 +8,7 @@ namespace WebMaze.Models.Life
     {
         public long Id { get; set; }
         public DateTime AccidentDate { get; set; }
-        public int SelectedAccidentCategory { get; set; } // for switching the 2 parts of view
+        public int SelectedAccidentCategory { get; set; } // for switching the 2 parts of the view
         public string AccidentCategoryText { get; set; }
 
         public AdressViewModel AccidentAddressViewModel { get; set; }

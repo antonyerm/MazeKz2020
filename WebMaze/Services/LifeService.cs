@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using WebMaze.DbStuff.Model;
 using WebMaze.DbStuff.Repository;
 
@@ -26,6 +25,12 @@ namespace WebMaze.Services
             this.roleRepository = roleRepository;
             this.httpContextAccessor = httpContextAccessor;
         }
+
+        /// <summary>
+        /// Creates specified number of unique users (actually creates less than that number because of limited names dictionoary)
+        /// </summary>
+        /// <param name="quantity">Number of new users required</param>
+        /// <returns>Actual number of users created</returns>
         public int GenerateCitizenUsers(int quantity)
         {
             var rnd = new Random();
@@ -108,6 +113,11 @@ namespace WebMaze.Services
             return successfulAttemptNumber;
         }
 
+        /// <summary>
+        /// Creates specified number of addresses (houses)
+        /// </summary>
+        /// <param name="quantity">Requested number of addresses</param>
+        /// <returns>Actual number of houses created</returns>
         public int GenerateAddresses(int quantity)
         {
             var rnd = new Random();
@@ -142,6 +152,10 @@ namespace WebMaze.Services
             return quantity;
         }
 
+        /// <summary>
+        /// Takes current user registered in Http.User
+        /// </summary>
+        /// <returns>CitizenUser object</returns>
         public CitizenUser GetCurrentUser()
         {
             var idStr = httpContextAccessor.HttpContext.

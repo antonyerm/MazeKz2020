@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using WebMaze.DbStuff.Model.Life;
+﻿using WebMaze.DbStuff.Model.Life;
 
 namespace WebMaze.DbStuff.Repository.Life
 {

@@ -7,9 +7,7 @@ using WebMaze.DbStuff;
 using WebMaze.DbStuff.Model.Life;
 using WebMaze.DbStuff.Repository.Life;
 using WebMaze.Models.Life;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using WebMaze.DbStuff.Repository;
-using WebMaze.DbStuff.Model;
 using WebMaze.Models.Account;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -509,6 +507,12 @@ namespace WebMaze.Controllers
 
 
         // ------------- utility methods------------------------------------------------------------
+
+        /// <summary>
+        /// Prepares Accident Details View Model for Accident Details, EditFire and Edit Criminal Offence view
+        /// </summary>
+        /// <param name="id">Accident Id</param>
+        /// <returns>Accident Details View Model instance</returns>
         private AccidentDetailsViewModel GetAccidentDetailsViewModel(long id)
         {
             var accidentFromDb = accidentRepository.Get(id);
@@ -592,6 +596,11 @@ namespace WebMaze.Controllers
             return accidentDetailsViewModel;
         }
 
+        /// <summary>
+        /// Prepares Select list for dropdown of any Enum properties
+        /// </summary>
+        /// <typeparam name="T">Type of Enum propertie</typeparam>
+        /// <returns>Select List for dropdown filled with Enum text values</returns>
         private SelectList GetSelectListFromEnum<T>() where T : Enum
         {
             var listOfValues = new List<SelectListItem>();
@@ -607,6 +616,10 @@ namespace WebMaze.Controllers
             return selectList;
         }
 
+        /// <summary>
+        /// Prepares Select List for dropdown of addresses
+        /// </summary>
+        /// <returns>Select List for dropdown filled with addresses as text</returns>
         private SelectList GetSelectListOfAddressesFromDb()
         {
             // TODO: take only a few records from address table
@@ -616,6 +629,10 @@ namespace WebMaze.Controllers
             return selectList;
         }
 
+        /// <summary>
+        /// Prepares Select List for dropdown of citizens
+        /// </summary>
+        /// <returns>Select List for dropdown filled with users as text</returns>
         private SelectList GetSelectListOfCitizensFromDb()
         {
             // TODO: take only a few records from citizens table
@@ -627,6 +644,12 @@ namespace WebMaze.Controllers
             return selectList;
         }
 
+        /// <summary>
+        /// Adds specified amount of unique users to the table. Very simple users with basic fields.
+        /// </summary>
+        /// <param name="quantity">Number of attempts of finding unique users. The names dictionary is limited, so is the 
+        /// ability to create unique names. </param>
+        /// <returns>Report of current users</returns>
         public IActionResult AddUsersToDb(int quantity)
         {
             int createdUsers = 0;
@@ -640,6 +663,11 @@ namespace WebMaze.Controllers
             return View("~/Views/Life/ListOfUsers.cshtml", allUsersViewModel);
         }
 
+        /// <summary>
+        /// Adds specified amount of addreses to the table. No attempt is made to make addresses unique.
+        /// </summary>
+        /// <param name="quantity">Number of addresses.</param>
+        /// <returns>Report of current addreses</returns>
         public IActionResult AddAddressesToDb(int quantity)
         {
             int createdAddresses = 0;
@@ -653,6 +681,13 @@ namespace WebMaze.Controllers
             return View("~/Views/Life/ListOfAddresses.cshtml", allAddressesViewModel);
         }
 
+        /// <summary>
+        /// Validation method for Remote type validation of input field of destroyed houses (they must be unique).
+        /// </summary>
+        /// <param name="houseAddressId">Address Id (primary key of Address table).</param>
+        /// <param name="accidentId">Accident Id.</param>
+        /// <param name="initialHouseAddressId">Address Id which was filled in initially on the form, before user interaction.</param>
+        /// <returns>Json object - True if addresses are unique, False if validation failed.</returns>
         [AcceptVerbs("GET", "POST")]
         public IActionResult IsBurntHouseUnique(long houseAddressId, long accidentId, long initialHouseAddressId)
         {
@@ -665,6 +700,13 @@ namespace WebMaze.Controllers
             return Json(!houseDestroyedInFireRepository.hasHouseAndAccident(houseAddressId, accidentId));
         }
 
+        /// <summary>
+        /// Validation method for Remote type validation of input field of offenders (they must be unique).
+        /// </summary>
+        /// <param name="citizenId">Citizens Id (primary key of CitizenUsers table).</param>
+        /// <param name="accidentId">Accident Id.</param>
+        /// <param name="initialCitizenId">Citizen Id which was filled in initially on the form, before user interaction.</param>
+        /// <returns>Json object - True if addresses are unique, False if validation failed.</returns>
         [AcceptVerbs("GET", "POST")]
         public IActionResult IsOffenderUnique(long citizenId, long accidentId, long initialCitizenId)
         {
