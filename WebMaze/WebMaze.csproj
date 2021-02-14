@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UserSecretsId>68b49295-2fc8-4659-9972-388963251660</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,12 +18,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MazeKz2020\MazeKz2020.csproj" />
+    <Folder Include="Controllers\CustomAttribute\Life\" />
+    <Folder Include="wwwroot\image\Maralov\" />
+    <Folder Include="wwwroot\image\avatar\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\image\Maralov\" />
-    <Folder Include="wwwroot\image\avatar\" />
+    <ProjectReference Include="..\MazeKz2020\MazeKz2020.csproj" />
   </ItemGroup>
 
 </Project>

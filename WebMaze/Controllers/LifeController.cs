@@ -11,12 +11,12 @@ using WebMaze.DbStuff.Repository;
 using WebMaze.Models.Account;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using WebMaze.Controllers.CustomAttribute.Life;
 using Microsoft.AspNetCore.Authorization;
 using System.Threading.Tasks;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using WebMaze.Services;
+using WebMaze.Models.CustomAttribute.Life;
 
 namespace WebMaze.Controllers
 {

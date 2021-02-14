@@ -61,7 +61,8 @@ namespace WebMaze
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=WebMazeKz;Trusted_Connection=True;MultipleActiveResultSets=true;";
+            //var connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=WebMazeKz;Trusted_Connection=True;MultipleActiveResultSets=true;";
+            var connectionString = @"workstation id=WebMazeKz.mssql.somee.com;packet size=4096;user id=antonius_SQLLogin_1;pwd=i3lph9jefg;data source=WebMazeKz.mssql.somee.com;persist security info=False;initial catalog=WebMazeKz";
             services.AddDbContext<WebMazeContext>(option => option.UseSqlServer(connectionString));
 
             services.AddAuthentication(AuthMethod)

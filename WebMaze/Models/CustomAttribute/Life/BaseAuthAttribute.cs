@@ -5,9 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using WebMaze.Services;
-using WebMaze.Services;
 
-namespace WebMaze.Controllers.CustomAttribute.Life
+namespace WebMaze.Models.CustomAttribute.Life
 {
     public class BaseAuthAttribute : ActionFilterAttribute
     {
