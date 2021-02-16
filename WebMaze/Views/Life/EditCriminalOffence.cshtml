@@ -1,5 +1,4 @@
 ﻿@using WebMaze.Models.Life
-@using WebMaze.DbStuff.Model.Life
 @model AccidentDetailsViewModel
 
 @{
@@ -22,7 +21,7 @@
 
 <div id="newContent" class="container">
     <div class="my-3">
-        <h5 class="text-info">Начальные сведения, полученные диспетчером полиции</h5>
+        <ReportSection>Начальные сведения, полученные диспетчером полиции</ReportSection>
         <div><strong>Дата преступления: </strong>@Model.AccidentDate.ToString("g")</div>
         <div>
             <strong>Место преступления: </strong>@Model.AccidentAddressText
@@ -32,8 +31,8 @@
 
 
     <div class="mb-3">
-        <h5 class="text-info">Данные, предоставленные полицией (редактирование)</h5>
-        <h6 class="text-info">Возбуждено уголовное дело по статьям</h6>
+        <ReportSection>Данные, предоставленные полицией (редактирование)</ReportSection>
+        <ReportSection>Возбуждено уголовное дело по статьям</ReportSection>
         <a class="btn btn-secondary col-md-2 my-3" id="buttonAddArticle" role="button"
            asp-controller="Life" asp-action="AddEditArticle" asp-all-route-data="@parameters">Добавить</a>
         <table class="table table-striped table-secondary mb-3" id="articles">
@@ -70,7 +69,7 @@
     </div>
 
     <div class="mt-4">
-        <h6 class="text-info">Пострадавшие в происшествии</h6>
+        <ReportSection>Пострадавшие в происшествии</ReportSection>
         <a class="btn btn-secondary col-md-2 my-3" id="buttonAddVictim" role="button"
            asp-controller="Life" asp-action="AddEditVictim" asp-all-route-data="@parameters">Добавить</a>
         <table class="table table-striped table-secondary mb-3" id="victims">
@@ -111,7 +110,7 @@
     </div>
 
     <div class="mt-4">
-        <h6 class="text-info">Провонарушители в происшествии</h6>
+        <ReportSection>Провонарушители в происшествии</ReportSection>
         <a class="btn btn-secondary col-md-2 my-3" id="buttonAddOffender" role="button"
            asp-controller="Life" asp-action="AddEditOffender" asp-all-route-data="@parameters">Добавить</a>
         <table class="table table-striped table-secondary mb-3" id="offenders">
@@ -149,14 +148,15 @@
         }
     </div>
 
-    <div class="row mt-3">
-        <div class="col">
-            Вот теперь всё правильно!
-        </div>
-        <div class="col">
-            <a class="btn btn-primary col-md-2" id="buttonCancelFiretDetails"
-               role="button" href="@Url.Action("ShowAccidents", "Life")">Вернуться</a>
+    <div class="card text-white bg-dark">
+        <div class="row m-3">
+            <div class="col">
+                Вот теперь всё правильно!
+            </div>
+            <div class="col">
+                <a class="btn btn-secondary col-md-3" id="buttonCancelFiretDetails"
+                   role="button" href="@Url.Action("ShowAccidents", "Life")">Вернуться</a>
+            </div>
         </div>
     </div>
 </div>
-

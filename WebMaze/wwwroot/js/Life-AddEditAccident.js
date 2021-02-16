@@ -17,8 +17,8 @@
     /**
     * Function to add a new row and a big cell to the table and fill it with content
     * Receives: url - for ajax get,
-    *           button - query for html element in the table for which the position of a new row is calculated
-    *           focusSelector - element to focus on in the end
+    *           button - the query for html element in the table for which the position of a new row is calculated
+    *           focusSelector - the element to focus on in the end
     */
     function AddRowAndFillIt(url, button, focusSelector) {
         var accidentId = button.attr("id").split("-")[1];
@@ -41,8 +41,8 @@
     function renderContent(url, id, whereToPutContent, focusSelector) {
         $.get(url, { id: id })
             .done(function (response) {
-                whereToPutContent.html(response);
                 whereToPutContent.addClass("overflow-hidden");
+                whereToPutContent.html(response);
                 whereToPutContent.hide(0, function () {
                     whereToPutContent.stop(true, true);
                     whereToPutContent.slideDown();

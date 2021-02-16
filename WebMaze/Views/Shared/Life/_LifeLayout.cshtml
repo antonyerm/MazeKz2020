@@ -1,4 +1,5 @@
 ﻿@using WebMaze.Services
+@addTagHelper *, WebMaze
 @inject LifeService lifeService
 
 @{
@@ -15,22 +16,22 @@
         @if (User.Identity.IsAuthenticated)
         {
             var currentUser = lifeService.GetCurrentUser();
-        <div>
-            Вы зашли как @(currentUser.FirstName + " " + currentUser.LastName) |
-            <a asp-action="Logout" asp-controller="Life">Выйти</a>
-        </div>
-        <div>
-            Ваши роли:
-            @foreach (var role in currentUser.Roles)
-            {
-            <span>@role.Name</span>
-            }
-        </div>
+            <div>
+                Вы зашли как @(currentUser.FirstName + " " + currentUser.LastName) |
+                <a asp-action="Logout" asp-controller="Life">Выйти</a>
+            </div>
+            <div>
+                Ваши роли:
+                @foreach (var role in currentUser.Roles)
+                {
+                    <span>@role.Name</span>
+                }
+            </div>
         }
         else
         {
             <div>
-                Вы не зашли в систему. 
+                Вы не зашли в систему.
                 <a asp-action="Login" asp-controller="Life">Войти</a>
             </div>
         }

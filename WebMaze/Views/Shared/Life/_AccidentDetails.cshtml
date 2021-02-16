@@ -5,7 +5,7 @@
 <partial name="~/Views/Shared/Life/_Validation.cshtml" />
 
 <div id="newContent" class="container">
-    <h5>Подробности случившегося</h5>
+    <ReportSection>Подробности случившегося</ReportSection>
     <div class="mt-3">
         <div><strong>Дата происшествия: </strong>@Model.AccidentDate.ToString("g")</div>
         <div>
@@ -16,7 +16,7 @@
     </div>
 
     <div class="mt-3">
-        <h5>Пострадавшие в происшествии</h5>
+        <ReportSection>Пострадавшие в происшествии</ReportSection>
         <table class="table table-striped mb-3" id="victims">
             <thead>
                 <tr>
@@ -49,13 +49,13 @@
     {
         @*Fire *@
         <div class="mt-3">
-            <h5>Характеристика пожара</h5>
+            <ReportSection>Характеристика пожара</ReportSection>
             <div><strong>Причина возгорания: </strong>@Model.FireDetailViewModel.FireCauseText</div>
             <div><strong>Класс возгорания: </strong>@Model.FireDetailViewModel.FireClassText</div>
         </div>
 
         <div class="mt-3">
-            <h5>Дома, уничтоженные в пожаре</h5>
+            <ReportSection>Дома, уничтоженные в пожаре</ReportSection>
             <table class="table table-striped mb-3" id="houses">
                 <thead>
                     <tr>
@@ -83,7 +83,7 @@
     {
         @*Criminal Offence *@
         <div class="mt-3">
-            <h5>Преступление относится к следующим статьям УК</h5>
+            <ReportSection>Преступление относится к следующим статьям УК</ReportSection>
             <table class="table table-striped mt-3" id="articles">
                 <thead>
                     <tr>
@@ -108,7 +108,7 @@
         </div>
 
         <div class="mt-3">
-            <h5>Следующие правонарушители понесли наказание</h5>
+            <ReportSection>Следующие правонарушители понесли наказание</ReportSection>
             <table class="table table-striped mt-3" id="articles">
                 <thead>
                     <tr>
@@ -135,37 +135,43 @@
         </div>
     }
 
-    <div class="row mt-5">
+    <div class="card text-white bg-dark">
         @if (Model.SelectedAccidentCategory == (int)AccidentCategoryEnum.Fire)
         {
-            <div class="col">
-                <span>Я пожарный. Я хочу внести изменения в эти данные.</span>
-            </div>
-            <div class="col">
-                <a class="btn btn-secondary col-md-2" id="buttonEditFire" type="submit" role="button"
-                   asp-controller="Life" asp-action="EditFire"
-                   asp-route-id=@Model.Id>Изменить</a>
+            <div class="row m-3">
+                <div class="col">
+                    <span>Я пожарный. Я хочу внести изменения в эти данные.</span>
+                </div>
+                <div class="col">
+                    <a class="btn btn-secondary col-md-3" id="buttonEditFire" type="submit" role="button"
+                       asp-controller="Life" asp-action="EditFire"
+                       asp-route-id=@Model.Id>Изменить</a>
+                </div>
             </div>
         }
         else
         {
-            <div class="col">
-                <span>Я полицейский. Я хочу внести изменения в эти данные.</span>
-            </div>
-            <div class="col">
-                <a class="btn btn-secondary col-md-2" id="buttonEditCriminalOffence" type="submit" role="button"
-                   asp-controller="Life" asp-action="EditCriminalOffence"
-                   asp-route-id=@Model.Id>Изменить</a>
+            <div class="row m-3">
+                <div class="col">
+                    <span>Я полицейский. Я хочу внести изменения в эти данные.</span>
+                </div>
+                <div class="col">
+                    <a class="btn btn-secondary col-md-3" id="buttonEditCriminalOffence" type="submit" role="button"
+                       asp-controller="Life" asp-action="EditCriminalOffence"
+                       asp-route-id=@Model.Id>Изменить</a>
+                </div>
             </div>
         }
+
+        <div class="row m-3">
+            <div class="col">
+                Ничего исправлять не нужно
+            </div>
+            <div class="col">
+                <a class="btn btn-secondary col-md-3" id="buttonCancelAccidentDetails" role="button" href="#">Отмена</a>
+            </div>
+        </div>
     </div>
 
-    <div class="row mt-3">
-        <div class="col">
-            Ничего исправлять не нужно
-        </div>
-        <div class="col">
-            <a class="btn btn-secondary col-md-2" id="buttonCancelAccidentDetails" role="button" href="#">Отмена</a>
-        </div>
-    </div>
+
 </div>
