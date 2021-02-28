@@ -13,11 +13,11 @@ namespace WebMaze.Models.CustomAttribute.Life
         protected string roleName;
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            var userService = context.HttpContext.RequestServices
+            var lifeService = context.HttpContext.RequestServices
                 .GetService(typeof(LifeService)) as LifeService;
-            var user = userService.GetCurrentUser();
+            var user = lifeService.GetCurrentUser();
 
-            // if not Authenticated or does not belong to required "roleName"
+            // if user is not Authenticated or does not belong to required "roleName"
             if (user == null || user.Roles.All(r => r.Name != this.roleName))
             {
                 context.Result = new ForbidResult();

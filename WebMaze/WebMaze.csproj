@@ -18,7 +18,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\CustomAttribute\Life\" />
     <Folder Include="wwwroot\image\Maralov\" />
     <Folder Include="wwwroot\image\avatar\" />
   </ItemGroup>
