@@ -126,10 +126,14 @@ namespace WebMaze
             services.AddScoped(s => new TransactionService(s.GetService<TransactionRepository>(),
                 s.GetService<CitizenUserRepository>()));
 
-            services.AddScoped(s => new LifeService(s.GetService<CitizenUserRepository>(),
+            services.AddScoped(s => new LifeService(
+                s.GetService<IMapper>(),
+                s.GetService<CitizenUserRepository>(),
+                s.GetService<AccidentRepository>(),
                 s.GetService<AdressRepository>(),
                 s.GetService<RoleRepository>(),
-                s.GetService<IHttpContextAccessor>()));
+                s.GetService<IHttpContextAccessor>()
+                ));
 
             services.AddHttpContextAccessor();
 

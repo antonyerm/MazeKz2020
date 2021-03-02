@@ -1,29 +1,41 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using WebMaze.DbStuff.Model;
+using WebMaze.DbStuff.Model.Life;
 using WebMaze.DbStuff.Repository;
+using WebMaze.DbStuff.Repository.Life;
+using WebMaze.Models.Account;
+using WebMaze.Models.Life;
 
 namespace WebMaze.Services
 {
     public class LifeService
     {
+        private IMapper mapper;
         private CitizenUserRepository citizenUserRepository;
         private AdressRepository addressRepository;
         private RoleRepository roleRepository;
         private IHttpContextAccessor httpContextAccessor;
+        private AccidentRepository accidentRepository;
 
-        public LifeService(CitizenUserRepository citizenUserRepository, 
-                                 AdressRepository addressRepository,
-                                 RoleRepository roleRepository,
-                                 IHttpContextAccessor httpContextAccessor)
+        public LifeService(IMapper mapper, 
+                            CitizenUserRepository citizenUserRepository,
+                            AccidentRepository accidentRepository,
+                            AdressRepository addressRepository,
+                            RoleRepository roleRepository,
+                            IHttpContextAccessor httpContextAccessor)
         {
+            this.mapper = mapper;
             this.citizenUserRepository = citizenUserRepository;
             this.addressRepository = addressRepository;
             this.roleRepository = roleRepository;
             this.httpContextAccessor = httpContextAccessor;
+            this.accidentRepository = accidentRepository;
         }
 
         /// <summary>
@@ -168,6 +180,142 @@ namespace WebMaze.Services
             var id = int.Parse(idStr);
             var citizen = citizenUserRepository.Get(id);
             return citizen;
+        }
+
+        /// <summary>
+        /// Prepares Accident Details View Model for Accident Details, EditFire and Edit Criminal Offence view
+        /// </summary>
+        /// <param name="id">Accident Id</param>
+        /// <returns>Accident Details View Model instance</returns>
+        public AccidentDetailsViewModel GetAccidentDetailsViewModel(long id)
+        {
+            var accidentFromDb = accidentRepository.Get(id);
+            var accidentDetailsViewModel = mapper.Map<AccidentDetailsViewModel>(accidentFromDb);
+
+            // victims list
+            // no items in the list = there were no victims (not "no info available")
+            var victimsFromDb = accidentFromDb.AccidentVictims;
+            var accidentVictimsViewModel = new List<AccidentVictimViewModel>();
+            if (victimsFromDb.Count != 0)
+            {
+                foreach (var victim in victimsFromDb)
+                {
+                    accidentVictimsViewModel.Add(mapper.Map<AccidentVictimViewModel>(victim));
+                }
+            }
+            accidentDetailsViewModel.AccidentVictimsViewModel = accidentVictimsViewModel;
+
+            // address
+            var accidentAddressFromDb = accidentFromDb.AccidentAddress;
+            var addressViewModel = mapper.Map<AdressViewModel>(accidentAddressFromDb);
+            accidentDetailsViewModel.AccidentAddressViewModel = addressViewModel;
+
+            accidentDetailsViewModel.AccidentAddressText = addressViewModel == null ? Dictionaries.NotAvailable : $"г.{addressViewModel.City}, ул.{addressViewModel.Street}, {addressViewModel.HouseNumber}";
+
+            // Fire details
+            var fireDetailFromDb = accidentFromDb.FireDetail;
+            var fireDetailViewModel = mapper.Map<FireDetailViewModel>(fireDetailFromDb);
+            if (fireDetailViewModel == null)
+            {
+                fireDetailViewModel = new FireDetailViewModel()
+                {
+                    AccidentId = accidentFromDb.Id,
+                    FireCause = FireCauseEnum.NotAvailable,
+                    FireCauseText = Dictionaries.GetText<FireCauseEnum>(FireCauseEnum.NotAvailable),
+                    FireClass = FireClassEnum.NotAvailable,
+                    FireClassText = Dictionaries.GetText<FireClassEnum>(FireClassEnum.NotAvailable),
+                };
+            }
+            accidentDetailsViewModel.FireDetailViewModel = fireDetailViewModel;
+
+            // Houses Destroyed in fire list
+            // no items in the list = there were no destroyed houes (not "no info available")
+            var housesDestroyedInFireFromDb = accidentFromDb.HousesDestroyedInFire;
+            var housesDestroyedInFireViewModel = new List<HouseDestroyedInFireViewModel>();
+            if (housesDestroyedInFireFromDb.Count != 0)
+            {
+                foreach (var house in housesDestroyedInFireFromDb)
+                {
+                    housesDestroyedInFireViewModel.Add(mapper.Map<HouseDestroyedInFireViewModel>(house));
+                }
+            }
+            accidentDetailsViewModel.HousesDestroyedInFireViewModel = housesDestroyedInFireViewModel;
+
+            // Criminal Offence
+            // Criminal offence articles
+            var criminalArticlesFromDb = accidentFromDb.CriminalOffenceArticles;
+            var criminalOffenceArticlesViewModel = new List<CriminalOffenceArticleViewModel>();
+            if (criminalArticlesFromDb.Count != 0)
+            {
+                foreach (var article in criminalArticlesFromDb)
+                {
+                    var articleViewModel = mapper.Map<CriminalOffenceArticleViewModel>(article);
+                    criminalOffenceArticlesViewModel.Add(articleViewModel);
+                }
+            }
+            accidentDetailsViewModel.CriminalOffenceArticlesViewModel = criminalOffenceArticlesViewModel;
+
+            // Criminal offenders
+            var offendersFromDb = accidentFromDb.CriminalOffenders;
+            var accidentOffendersViewModel = new List<CriminalOffenderViewModel>();
+            if (offendersFromDb.Count != 0)
+            {
+                foreach (var offender in offendersFromDb)
+                {
+                    accidentOffendersViewModel.Add(mapper.Map<CriminalOffenderViewModel>(offender));
+                }
+            }
+            accidentDetailsViewModel.CriminalOffendersViewModel = accidentOffendersViewModel;
+
+            return accidentDetailsViewModel;
+        }
+
+        /// <summary>
+        /// Prepares Select list for dropdown of any Enum properties
+        /// </summary>
+        /// <typeparam name="T">Type of Enum propertie</typeparam>
+        /// <returns>Select List for dropdown filled with Enum text values</returns>
+        public SelectList GetSelectListFromEnum<T>() where T : Enum
+        {
+            var listOfValues = new List<SelectListItem>();
+            foreach (var valueAsObject in Enum.GetValues(typeof(T)))
+            {
+                listOfValues.Add(new SelectListItem
+                {
+                    Value = ((int)valueAsObject).ToString(),
+                    Text = Dictionaries.GetText((T)valueAsObject)
+                });
+            };
+            var selectList = new SelectList(listOfValues, "Value", "Text");
+            return selectList;
+        }
+
+        /// <summary>
+        /// Prepares Select List for dropdown of addresses
+        /// </summary>
+        /// <returns>Select List for dropdown filled with addresses as text</returns>
+        public SelectList GetSelectListOfAddressesFromDb()
+        {
+            // TODO: take only a few records from address table
+            var addressListFromDb = this.addressRepository.GetAll().
+                Select(a => new { Id = a.Id, Address = $"{a.City}, ул.{a.Street}, {a.HouseNumber}" });
+            var selectList = new SelectList(addressListFromDb, "Id", "Address");
+            return selectList;
+        }
+
+        /// <summary>
+        /// Prepares Select List for dropdown of citizens
+        /// </summary>
+        /// <returns>Select List for dropdown filled with users as text</returns>
+        public SelectList GetSelectListOfCitizensFromDb()
+        {
+            // TODO: take only a few records from citizens table
+            var citizensListFromDb = this.citizenUserRepository.GetAll().
+                Select(c => new { Id = c.Id, Name = $"{c.FirstName} {c.LastName}" });
+
+            //var citizensListFromDb = this.citizenUserRepository.GetAll();
+            var selectList = new SelectList(citizensListFromDb, "Id", "Name");
+            return selectList;
         }
     }
 }

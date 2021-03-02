@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using WebMaze.DbStuff;
@@ -34,7 +33,8 @@ namespace WebMaze.Controllers
         private LifeService lifeService;
         private IMapper mapper;
 
-        public LifeController(WebMazeContext context, IMapper mapper,
+        public LifeController(WebMazeContext context, 
+                              IMapper mapper,
                               AccidentRepository accidentRepository,
                               AdressRepository addressRepository,
                               CitizenUserRepository citizenUserRepository,
@@ -69,10 +69,10 @@ namespace WebMaze.Controllers
         {
             var accidentsViewModel = new List<AccidentViewModel>();
             var accidentsFromDb = this.accidentRepository.GetAll();
-            foreach (var item in accidentsFromDb)
+            foreach (var accident in accidentsFromDb)
             {
-                var individualAccidentViewModel = mapper.Map<AccidentViewModel>(item);
-                individualAccidentViewModel.AddressViewModel = mapper.Map<AdressViewModel>(item.AccidentAddress);
+                var individualAccidentViewModel = mapper.Map<AccidentViewModel>(accident);
+                individualAccidentViewModel.AddressViewModel = mapper.Map<AdressViewModel>(accident.AccidentAddress);
                 accidentsViewModel.Add(individualAccidentViewModel);
             }
 
@@ -82,8 +82,8 @@ namespace WebMaze.Controllers
         [HttpGet]
         public IActionResult AddEditAccident(long id)
         {
-            var accidentCategoryList = GetSelectListFromEnum<AccidentCategoryEnum>();
-            var accidentAddressList = GetSelectListOfAddressesFromDb();
+            var accidentCategoryList = lifeService.GetSelectListFromEnum<AccidentCategoryEnum>();
+            var accidentAddressList = lifeService.GetSelectListOfAddressesFromDb();
 
             // view model for Add Accident
             var accidentViewModel = new AccidentViewModel()
@@ -114,8 +114,8 @@ namespace WebMaze.Controllers
         [HttpPost]
         public IActionResult AddEditAccident(AccidentViewModel accidentViewModel)
         {
-            accidentViewModel.AccidentCategoryList = GetSelectListFromEnum<AccidentCategoryEnum>();
-            accidentViewModel.AccidentAddressList = GetSelectListOfAddressesFromDb();
+            accidentViewModel.AccidentCategoryList = lifeService.GetSelectListFromEnum<AccidentCategoryEnum>();
+            accidentViewModel.AccidentAddressList = lifeService.GetSelectListOfAddressesFromDb();
 
             // validation for combination of fields
             if (accidentViewModel.SelectedAccidentAddress == null && accidentViewModel.AccidentDescription == null)
@@ -151,7 +151,7 @@ namespace WebMaze.Controllers
         [HttpGet]
         public IActionResult AccidentDetails(long id)
         {
-            var accidentDetailsViewModel = GetAccidentDetailsViewModel(id);
+            var accidentDetailsViewModel = lifeService.GetAccidentDetailsViewModel(id);
 
             return PartialView("~/Views/Shared/Life/_AccidentDetails.cshtml", accidentDetailsViewModel);
         }
@@ -160,7 +160,7 @@ namespace WebMaze.Controllers
         [IsFireman]
         public IActionResult EditFire(long id)
         {
-            var accidentDetailsViewModel = GetAccidentDetailsViewModel(id);
+            var accidentDetailsViewModel = lifeService.GetAccidentDetailsViewModel(id);
             return View("~/Views/Life/EditFire.cshtml", accidentDetailsViewModel);
         }
 
@@ -168,7 +168,7 @@ namespace WebMaze.Controllers
         [IsPoliceman]
         public IActionResult EditCriminalOffence(long id)
         {
-            var accidentDetailsViewModel = GetAccidentDetailsViewModel(id);
+            var accidentDetailsViewModel = lifeService.GetAccidentDetailsViewModel(id);
             return View("~/Views/Life/EditCriminalOffence.cshtml", accidentDetailsViewModel);
         }
 
@@ -176,8 +176,8 @@ namespace WebMaze.Controllers
         public IActionResult AddEditVictim(long? victimId, long accidentId, AccidentCategoryEnum accidentCategory)
         {
             AccidentVictimViewModel victimViewModel;
-            var citizenSelectList = GetSelectListOfCitizensFromDb();
-            var bodilyHarmSelectList = GetSelectListFromEnum<BodilyHarmEnum>();
+            var citizenSelectList = lifeService.GetSelectListOfCitizensFromDb();
+            var bodilyHarmSelectList = lifeService.GetSelectListFromEnum<BodilyHarmEnum>();
             if (victimId == null)
             {
                 victimViewModel = new AccidentVictimViewModel
@@ -205,8 +205,8 @@ namespace WebMaze.Controllers
         [HttpPost]
         public IActionResult AddEditVictim(AccidentVictimViewModel accidentVictimViewModel)
         {
-            accidentVictimViewModel.CitizenList = GetSelectListOfCitizensFromDb();
-            accidentVictimViewModel.BodilyHarmList = GetSelectListFromEnum<BodilyHarmEnum>();
+            accidentVictimViewModel.CitizenList = lifeService.GetSelectListOfCitizensFromDb();
+            accidentVictimViewModel.BodilyHarmList = lifeService.GetSelectListFromEnum<BodilyHarmEnum>();
 
             // CitizenId is not valid
             if (ModelState[nameof(accidentVictimViewModel.CitizenId)].ValidationState == ModelValidationState.Invalid)
@@ -270,14 +270,14 @@ namespace WebMaze.Controllers
                 houseViewModel = mapper.Map<HouseDestroyedInFireViewModel>(houseFromDb);
             }
 
-            houseViewModel.HouseAddressesList = GetSelectListOfAddressesFromDb();
+            houseViewModel.HouseAddressesList = lifeService.GetSelectListOfAddressesFromDb();
             return View("~/Views/Life/AddEditHouseDestroyedInFire.cshtml", houseViewModel);
         }
 
         [HttpPost]
         public IActionResult AddEditHouseDestroyedInFire(HouseDestroyedInFireViewModel houseViewModel)
         {
-            houseViewModel.HouseAddressesList = GetSelectListOfAddressesFromDb();
+            houseViewModel.HouseAddressesList = lifeService.GetSelectListOfAddressesFromDb();
             if (!ModelState.IsValid)
             {
                 return View("~/Views/Life/AddEditHouseDestroyedInFire.cshtml", houseViewModel);
@@ -316,8 +316,8 @@ namespace WebMaze.Controllers
                 };
             }
 
-            fireDetailViewModel.FireCauseList = GetSelectListFromEnum<FireCauseEnum>();
-            fireDetailViewModel.FireClassList = GetSelectListFromEnum<FireClassEnum>();
+            fireDetailViewModel.FireCauseList = lifeService.GetSelectListFromEnum<FireCauseEnum>();
+            fireDetailViewModel.FireClassList = lifeService.GetSelectListFromEnum<FireClassEnum>();
 
             return View("~/Views/Life/EditFireDetails.cshtml", fireDetailViewModel);
         }
@@ -325,8 +325,8 @@ namespace WebMaze.Controllers
         [HttpPost]
         public IActionResult EditFireDetails(FireDetailViewModel fireDetailViewModel)
         {
-            fireDetailViewModel.FireCauseList = GetSelectListFromEnum<FireCauseEnum>();
-            fireDetailViewModel.FireClassList = GetSelectListFromEnum<FireClassEnum>();
+            fireDetailViewModel.FireCauseList = lifeService.GetSelectListFromEnum<FireCauseEnum>();
+            fireDetailViewModel.FireClassList = lifeService.GetSelectListFromEnum<FireClassEnum>();
             if (!ModelState.IsValid)
             {
                 return View("~/Views/Life/EditFireDetails.cshtml", fireDetailViewModel);
@@ -366,14 +366,14 @@ namespace WebMaze.Controllers
                 articleViewModel = mapper.Map<CriminalOffenceArticleViewModel>(articleFromDb);
             }
 
-            articleViewModel.CriminalOffenceArticlesList = GetSelectListFromEnum<CriminalCodeEnum>();
+            articleViewModel.CriminalOffenceArticlesList = lifeService.GetSelectListFromEnum<CriminalCodeEnum>();
             return View("~/Views/Life/AddEditArticle.cshtml", articleViewModel);
         }
 
         [HttpPost]
         public IActionResult AddEditArticle(CriminalOffenceArticleViewModel articleViewModel)
         {
-            articleViewModel.CriminalOffenceArticlesList = GetSelectListFromEnum<CriminalCodeEnum>();
+            articleViewModel.CriminalOffenceArticlesList = lifeService.GetSelectListFromEnum<CriminalCodeEnum>();
             if (!ModelState.IsValid)
             {
                 return View("~/Views/Life/AddEditArticle.cshtml", articleViewModel);
@@ -420,14 +420,14 @@ namespace WebMaze.Controllers
                 offenderViewModel = mapper.Map<CriminalOffenderViewModel>(offenderFromDb);
             }
 
-            offenderViewModel.CitizenList = GetSelectListOfCitizensFromDb();
+            offenderViewModel.CitizenList = lifeService.GetSelectListOfCitizensFromDb();
             return View("~/Views/Life/AddEditOffender.cshtml", offenderViewModel);
         }
 
         [HttpPost]
         public IActionResult AddEditOffender(CriminalOffenderViewModel offenderViewModel)
         {
-            offenderViewModel.CitizenList = GetSelectListOfCitizensFromDb();
+            offenderViewModel.CitizenList = lifeService.GetSelectListOfCitizensFromDb();
             if (!ModelState.IsValid)
             {
                 return View("~/Views/Life/AddEditOffender.cshtml", offenderViewModel);
@@ -508,141 +508,7 @@ namespace WebMaze.Controllers
 
         // ------------- utility methods------------------------------------------------------------
 
-        /// <summary>
-        /// Prepares Accident Details View Model for Accident Details, EditFire and Edit Criminal Offence view
-        /// </summary>
-        /// <param name="id">Accident Id</param>
-        /// <returns>Accident Details View Model instance</returns>
-        private AccidentDetailsViewModel GetAccidentDetailsViewModel(long id)
-        {
-            var accidentFromDb = accidentRepository.Get(id);
-            var accidentDetailsViewModel = mapper.Map<AccidentDetailsViewModel>(accidentFromDb);
-
-            // victims list
-            // no items in the list = there were no victims (not "no info available")
-            var victimsFromDb = accidentFromDb.AccidentVictims;
-            var accidentVictimsViewModel = new List<AccidentVictimViewModel>();
-            if (victimsFromDb.Count != 0)
-            {
-                foreach (var victim in victimsFromDb)
-                {
-                    accidentVictimsViewModel.Add(mapper.Map<AccidentVictimViewModel>(victim));
-                }
-            }
-            accidentDetailsViewModel.AccidentVictimsViewModel = accidentVictimsViewModel;
-
-            // address
-            var accidentAddressFromDb = accidentFromDb.AccidentAddress;
-            var addressViewModel = mapper.Map<AdressViewModel>(accidentAddressFromDb);
-            accidentDetailsViewModel.AccidentAddressViewModel = addressViewModel;
-
-            accidentDetailsViewModel.AccidentAddressText = addressViewModel == null ? Dictionaries.NotAvailable : $"г.{addressViewModel.City}, ул.{addressViewModel.Street}, {addressViewModel.HouseNumber}";
-
-            // Fire details
-            var fireDetailFromDb = accidentFromDb.FireDetail;
-            var fireDetailViewModel = mapper.Map<FireDetailViewModel>(fireDetailFromDb);
-            if (fireDetailViewModel == null)
-            {
-                fireDetailViewModel = new FireDetailViewModel()
-                {
-                    AccidentId = accidentFromDb.Id,
-                    FireCause = FireCauseEnum.NotAvailable,
-                    FireCauseText = Dictionaries.GetText<FireCauseEnum>(FireCauseEnum.NotAvailable),
-                    FireClass = FireClassEnum.NotAvailable,
-                    FireClassText = Dictionaries.GetText<FireClassEnum>(FireClassEnum.NotAvailable),
-                };
-            }
-            accidentDetailsViewModel.FireDetailViewModel = fireDetailViewModel;
-
-            // Houses Destroyed in fire list
-            // no items in the list = there were no destroyed houes (not "no info available")
-            var housesDestroyedInFireFromDb = accidentFromDb.HousesDestroyedInFire;
-            var housesDestroyedInFireViewModel = new List<HouseDestroyedInFireViewModel>();
-            if (housesDestroyedInFireFromDb.Count != 0)
-            {
-                foreach (var house in housesDestroyedInFireFromDb)
-                {
-                    housesDestroyedInFireViewModel.Add(mapper.Map<HouseDestroyedInFireViewModel>(house));
-                }
-            }
-            accidentDetailsViewModel.HousesDestroyedInFireViewModel = housesDestroyedInFireViewModel;
-
-            // Criminal Offence
-            // Criminal offence articles
-            var criminalArticlesFromDb = accidentFromDb.CriminalOffenceArticles;
-            var criminalOffenceArticlesViewModel = new List<CriminalOffenceArticleViewModel>();
-            if (criminalArticlesFromDb.Count != 0)
-            {
-                foreach (var article in criminalArticlesFromDb)
-                {
-                    var articleViewModel = mapper.Map<CriminalOffenceArticleViewModel>(article);
-                    criminalOffenceArticlesViewModel.Add(articleViewModel);
-                }
-            }
-            accidentDetailsViewModel.CriminalOffenceArticlesViewModel = criminalOffenceArticlesViewModel;
-
-            // Criminal offenders
-            var offendersFromDb = accidentFromDb.CriminalOffenders;
-            var accidentOffendersViewModel = new List<CriminalOffenderViewModel>();
-            if (offendersFromDb.Count != 0)
-            {
-                foreach (var offender in offendersFromDb)
-                {
-                    accidentOffendersViewModel.Add(mapper.Map<CriminalOffenderViewModel>(offender));
-                }
-            }
-            accidentDetailsViewModel.CriminalOffendersViewModel = accidentOffendersViewModel;
-
-            return accidentDetailsViewModel;
-        }
-
-        /// <summary>
-        /// Prepares Select list for dropdown of any Enum properties
-        /// </summary>
-        /// <typeparam name="T">Type of Enum propertie</typeparam>
-        /// <returns>Select List for dropdown filled with Enum text values</returns>
-        private SelectList GetSelectListFromEnum<T>() where T : Enum
-        {
-            var listOfValues = new List<SelectListItem>();
-            foreach (var valueAsObject in Enum.GetValues(typeof(T)))
-            {
-                listOfValues.Add(new SelectListItem
-                {
-                    Value = ((int)valueAsObject).ToString(),
-                    Text = Dictionaries.GetText((T)valueAsObject)
-                });
-            };
-            var selectList = new SelectList(listOfValues, "Value", "Text");
-            return selectList;
-        }
-
-        /// <summary>
-        /// Prepares Select List for dropdown of addresses
-        /// </summary>
-        /// <returns>Select List for dropdown filled with addresses as text</returns>
-        private SelectList GetSelectListOfAddressesFromDb()
-        {
-            // TODO: take only a few records from address table
-            var addressListFromDb = this.addressRepository.GetAll().
-                Select(a => new { Id = a.Id, Address = $"{a.City}, ул.{a.Street}, {a.HouseNumber}" });
-            var selectList = new SelectList(addressListFromDb, "Id", "Address");
-            return selectList;
-        }
-
-        /// <summary>
-        /// Prepares Select List for dropdown of citizens
-        /// </summary>
-        /// <returns>Select List for dropdown filled with users as text</returns>
-        private SelectList GetSelectListOfCitizensFromDb()
-        {
-            // TODO: take only a few records from citizens table
-            var citizensListFromDb = this.citizenUserRepository.GetAll().
-                Select(c => new { Id = c.Id, Name = $"{c.FirstName} {c.LastName}" });
-
-            //var citizensListFromDb = this.citizenUserRepository.GetAll();
-            var selectList = new SelectList(citizensListFromDb, "Id", "Name");
-            return selectList;
-        }
+        
 
         /// <summary>
         /// Adds specified amount of unique users to the table. Very simple users with basic fields.
@@ -718,7 +584,6 @@ namespace WebMaze.Controllers
 
             return Json(!criminalOffenderRepository.hasCitizenAndAccident(citizenId, accidentId));
         }
-
 
     }
 }
